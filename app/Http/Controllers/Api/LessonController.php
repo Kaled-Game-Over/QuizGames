@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Lesson;
+use App\Models\LessonContent;
+use Illuminate\Http\Request;
+
+class LessonController extends Controller
+{
+    /**
+     * Create a new lesson (teacher only).
+     */
+    public function store(Request $request)
+    {
+        if ($request->user()->role !== 'teacher') {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'map_id' => 'required|exists:maps,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'order' => 'nullable|integer',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $lesson = Lesson::create($validated);
+        return response()->json(['message' => 'Lesson created', 'lesson' => $lesson], 201);
+    }
+
+    /**
+     * Add a question/content to a lesson (teacher only).
+     */
+    public function addContent(Request $request, Lesson $lesson)
+    {
+        if ($request->user()->role !== 'teacher') {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'type' => 'required|in:text,image,video',
+            'content' => 'required|string',
+            'file_path' => 'nullable|string',
+            'order' => 'nullable|integer',
+        ]);
+
+        $content = $lesson->contents()->create($validated);
+        return response()->json(['message' => 'Content added', 'content' => $content], 201);
+    }
+} 
