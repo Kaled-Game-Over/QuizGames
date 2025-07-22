@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ChildController;
 use App\Http\Controllers\Api\GameModeController;
 use App\Http\Controllers\Api\LessonController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/assign-teacher-role', [UserController::class, 'assignTeacherRole']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
