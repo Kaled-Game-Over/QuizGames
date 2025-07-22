@@ -83,6 +83,15 @@ class LoginRegisterController extends Controller
         if(Auth::attempt($credentials))
         {
             $request->session()->regenerate();
+            // تحقق من أن المستخدم معلم
+            if (!Auth::user()->hasRole('teacher')) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return back()->withErrors([
+                    'email' => 'You are not authorized to access the teacher dashboard.'
+                ])->onlyInput('email');
+            }
             return redirect()->route('dashboard')
                 ->withSuccess('You have successfully logged in!');
         }
@@ -90,8 +99,7 @@ class LoginRegisterController extends Controller
         return back()->withErrors([
             'email' => 'Your provided credentials do not match in our records.',
         ])->onlyInput('email');
-
-    } 
+    }
     
     /**
      * Display a dashboard to authenticated users.
@@ -100,14 +108,14 @@ class LoginRegisterController extends Controller
      */
     public function dashboard()
     {
-        if(Auth::check())
+        if(Auth::check() && Auth::user()->hasRole('teacher'))
         {
             return view('auth.dashboard');
         }
-        
+        Auth::logout();
         return redirect()->route('login')
             ->withErrors([
-            'email' => 'Please login to access the dashboard.',
+            'email' => 'Please login as a teacher to access the dashboard.',
         ])->onlyInput('email');
     } 
     

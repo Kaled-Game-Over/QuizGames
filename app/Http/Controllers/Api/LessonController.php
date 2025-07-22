@@ -24,9 +24,20 @@ class LessonController extends Controller
             'description' => 'required|string',
             'order' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp',
+            'video' => 'nullable|file|mimes:mp4,avi,mov,webm',
         ]);
 
-        $lesson = Lesson::create($validated);
+        $data = $validated;
+
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('lessons/images', 'public');
+        }
+        if ($request->hasFile('video')) {
+            $data['video_path'] = $request->file('video')->store('lessons/videos', 'public');
+        }
+
+        $lesson = Lesson::create($data);
         return response()->json(['message' => 'Lesson created', 'lesson' => $lesson], 201);
     }
 
