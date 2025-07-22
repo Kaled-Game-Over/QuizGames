@@ -35,4 +35,12 @@ class Child extends Model
     {
         return Map::where('grade_level', $this->grade_level)->first();
     }
+
+    /**
+     * Get the progress records for the child.
+     */
+    public function progress()
+    {
+        return $this->hasMany(ChildProgress::class);
+    }
 } 

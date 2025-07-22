@@ -16,6 +16,8 @@ class Lesson extends Model
         'map_id',
         'title',
         'description',
+        'image_path',
+        'video_path',
         'order',
         'is_active',
     ];
@@ -46,5 +48,21 @@ class Lesson extends Model
     public function gameMode(): HasOne
     {
         return $this->hasOne(GameMode::class);
+    }
+
+    /**
+     * Get the subject that owns the lesson.
+     */
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(Subject::class);
+    }
+
+    /**
+     * Get the progress records for the lesson.
+     */
+    public function progress()
+    {
+        return $this->hasMany(ChildProgress::class);
     }
 } 
