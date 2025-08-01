@@ -10,6 +10,31 @@ use Illuminate\Http\Request;
 class LessonController extends Controller
 {
     /**
+     * Display the specified lesson.
+     */
+    public function show(Lesson $lesson)
+    {
+        $lesson->load('contents');
+        return response()->json([
+            'lesson' => $lesson,
+            'contents' => $lesson->contents
+        ]);
+    }
+
+    /**
+     * Get lessons by map ID.
+     */
+    public function getByMap($mapId)
+    {
+        $lessons = Lesson::where('map_id', $mapId)
+            ->where('is_active', true)
+            ->orderBy('order')
+            ->get();
+        
+        return response()->json(['lessons' => $lessons]);
+    }
+
+    /**
      * Create a new lesson (teacher only).
      */
     public function store(Request $request)

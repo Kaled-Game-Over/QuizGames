@@ -1,0 +1,224 @@
+{
+  "base_url": "http://localhost:8000/api",
+  "tests": {
+    "public_routes": {
+      "register": {
+        "method": "POST",
+        "url": "/register",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        "body": {
+          "name": "Test User",
+          "email": "test@example.com",
+          "password": "password123",
+          "password_confirmation": "password123"
+        },
+        "expected_status": 201,
+        "description": "Register a new user"
+      },
+      "login": {
+        "method": "POST",
+        "url": "/login",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        "body": {
+          "email": "test@example.com",
+          "password": "password123"
+        },
+        "expected_status": 200,
+        "description": "Login user and get token"
+      },
+      "assign_teacher_role": {
+        "method": "POST",
+        "url": "/assign-teacher-role",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        "body": {
+          "email": "test@example.com"
+        },
+        "expected_status": 200,
+        "description": "Assign teacher role to user"
+      }
+    },
+    "protected_routes": {
+      "logout": {
+        "method": "POST",
+        "url": "/logout",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "expected_status": 200,
+        "description": "Logout user"
+      },
+      "get_user": {
+        "method": "GET",
+        "url": "/user",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "expected_status": 200,
+        "description": "Get authenticated user profile"
+      },
+      "children_index": {
+        "method": "GET",
+        "url": "/children",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "expected_status": 200,
+        "description": "Get all children"
+      },
+      "children_store": {
+        "method": "POST",
+        "url": "/children",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "Test Child",
+          "age": 8,
+          "grade": "3rd Grade"
+        },
+        "expected_status": 201,
+        "description": "Create a new child"
+      },
+      "children_show": {
+        "method": "GET",
+        "url": "/children/{id}",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "expected_status": 200,
+        "description": "Get specific child"
+      },
+      "children_update": {
+        "method": "PUT",
+        "url": "/children/{id}",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "Updated Child Name",
+          "age": 9,
+          "grade": "4th Grade"
+        },
+        "expected_status": 200,
+        "description": "Update child information"
+      },
+      "children_destroy": {
+        "method": "DELETE",
+        "url": "/children/{id}",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "expected_status": 200,
+        "description": "Delete a child"
+      },
+      "children_map": {
+        "method": "GET",
+        "url": "/children/{id}/map",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "expected_status": 200,
+        "description": "Get child's map"
+      },
+      "lessons_show": {
+        "method": "GET",
+        "url": "/lessons/{id}",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "expected_status": 200,
+        "description": "Get specific lesson"
+      },
+      "maps_lessons": {
+        "method": "GET",
+        "url": "/maps/{mapId}/lessons",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "expected_status": 200,
+        "description": "Get lessons by map"
+      },
+      "lessons_store": {
+        "method": "POST",
+        "url": "/lessons",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "title": "Test Lesson",
+          "description": "This is a test lesson",
+          "map_id": 1
+        },
+        "expected_status": 201,
+        "description": "Create a new lesson"
+      },
+      "lessons_add_content": {
+        "method": "POST",
+        "url": "/lessons/{id}/contents",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "content": "Lesson content here",
+          "type": "text"
+        },
+        "expected_status": 201,
+        "description": "Add content to lesson"
+      },
+      "game_modes_show": {
+        "method": "GET",
+        "url": "/game-modes/{id}",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "expected_status": 200,
+        "description": "Get specific game mode"
+      },
+      "lessons_game_mode": {
+        "method": "GET",
+        "url": "/lessons/{lessonId}/game-mode",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "expected_status": 200,
+        "description": "Get game mode by lesson"
+      }
+    }
+  },
+  "testing_instructions": {
+    "step1": "Start Laravel server: php artisan serve",
+    "step2": "Test public routes first (register, login, assign-teacher-role)",
+    "step3": "Save the token from login response",
+    "step4": "Replace {token} in protected routes with actual token",
+    "step5": "Test protected routes systematically",
+    "step6": "Check for proper error handling and validation"
+  }
+} 

@@ -13,11 +13,7 @@ class Child extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'grade_level',
-    ];
-
-    protected $casts = [
-        'grade_level' => 'string',
+        'grade_id',
     ];
 
     /**
@@ -29,11 +25,19 @@ class Child extends Model
     }
 
     /**
+     * Get the grade for this child.
+     */
+    public function grade(): BelongsTo
+    {
+        return $this->belongsTo(Grade::class);
+    }
+
+    /**
      * Get the map for this child's grade level.
      */
     public function map()
     {
-        return Map::where('grade_level', $this->grade_level)->first();
+        return $this->grade ? $this->grade->maps()->first() : null;
     }
 
     /**

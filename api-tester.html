@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .preset-buttons {
+            margin-bottom: 20px;
+        }
+        .preset-buttons button {
+            margin-bottom: 10px;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Tester</h1>
+        <p>Test your Laravel APIs here. Base URL: <strong>http://localhost:8000/api</strong></p>
+        
+        <div class="preset-buttons">
+            <h3>Quick Test Buttons:</h3>
+            <button onclick="loadPreset('register')">Test Register</button>
+            <button onclick="loadPreset('login')">Test Login</button>
+            <button onclick="loadPreset('assign-teacher')">Test Assign Teacher Role</button>
+            <button onclick="loadPreset('user-profile')">Test Get User Profile</button>
+            <button onclick="loadPreset('children-list')">Test Get Children</button>
+            <button onclick="loadPreset('create-child')">Test Create Child</button>
+        </div>
+
+        <form id="apiForm">
+            <div class="form-group">
+                <label for="method">Method:</label>
+                <select id="method">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="url">URL:</label>
+                <input type="text" id="url" value="/register" placeholder="Enter endpoint (e.g., /register)">
+            </div>
+
+            <div class="form-group">
+                <label for="headers">Headers:</label>
+                <textarea id="headers" rows="4" placeholder='{"Content-Type": "application/json", "Accept": "application/json"}'></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="body">Body (for POST/PUT):</label>
+                <textarea id="body" rows="8" placeholder='{"name": "Test User", "email": "test@example.com", "password": "password123", "password_confirmation": "password123"}'></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="token">Auth Token (for protected routes):</label>
+                <input type="text" id="token" placeholder="Enter your Bearer token here">
+            </div>
+
+            <button type="button" onclick="sendRequest()">Send Request</button>
+            <button type="button" onclick="clearResponse()">Clear Response</button>
+        </form>
+
+        <div id="response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        let authToken = '';
+
+        function loadPreset(type) {
+            const methodSelect = document.getElementById('method');
+            const urlInput = document.getElementById('url');
+            const headersInput = document.getElementById('headers');
+            const bodyInput = document.getElementById('body');
+
+            switch(type) {
+                case 'register':
+                    methodSelect.value = 'POST';
+                    urlInput.value = '/register';
+                    headersInput.value = JSON.stringify({
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }, null, 2);
+                    bodyInput.value = JSON.stringify({
+                        name: 'Test User',
+                        email: 'test@example.com',
+                        password: 'password123',
+                        password_confirmation: 'password123'
+                    }, null, 2);
+                    break;
+
+                case 'login':
+                    methodSelect.value = 'POST';
+                    urlInput.value = '/login';
+                    headersInput.value = JSON.stringify({
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }, null, 2);
+                    bodyInput.value = JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'password123'
+                    }, null, 2);
+                    break;
+
+                case 'assign-teacher':
+                    methodSelect.value = 'POST';
+                    urlInput.value = '/assign-teacher-role';
+                    headersInput.value = JSON.stringify({
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }, null, 2);
+                    bodyInput.value = JSON.stringify({
+                        email: 'test@example.com'
+                    }, null, 2);
+                    break;
+
+                case 'user-profile':
+                    methodSelect.value = 'GET';
+                    urlInput.value = '/user';
+                    headersInput.value = JSON.stringify({
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    bodyInput.value = '';
+                    break;
+
+                case 'children-list':
+                    methodSelect.value = 'GET';
+                    urlInput.value = '/children';
+                    headersInput.value = JSON.stringify({
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    bodyInput.value = '';
+                    break;
+
+                case 'create-child':
+                    methodSelect.value = 'POST';
+                    urlInput.value = '/children';
+                    headersInput.value = JSON.stringify({
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    bodyInput.value = JSON.stringify({
+                        name: 'Test Child',
+                        age: 8,
+                        grade_level: '3rd Grade'
+                    }, null, 2);
+                    break;
+            }
+        }
+
+        async function sendRequest() {
+            const method = document.getElementById('method').value;
+            const url = document.getElementById('url').value;
+            const headersText = document.getElementById('headers').value;
+            const bodyText = document.getElementById('body').value;
+            const token = document.getElementById('token').value;
+
+            // Update auth token if provided
+            if (token) {
+                authToken = token;
+            }
+
+            let headers = {};
+            try {
+                headers = JSON.parse(headersText);
+            } catch (e) {
+                alert('Invalid JSON in headers');
+                return;
+            }
+
+            // Add token to headers if provided
+            if (token && !headers.Authorization) {
+                headers.Authorization = 'Bearer ' + token;
+            }
+
+            const fullUrl = 'http://localhost:8000/api' + url;
+            const responseDiv = document.getElementById('response');
+
+            try {
+                const options = {
+                    method: method,
+                    headers: headers
+                };
+
+                if (bodyText && (method === 'POST' || method === 'PUT')) {
+                    options.body = bodyText;
+                }
+
+                const response = await fetch(fullUrl, options);
+                const responseText = await response.text();
+                
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    responseData = responseText;
+                }
+
+                const result = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    data: responseData
+                };
+
+                responseDiv.innerHTML = JSON.stringify(result, null, 2);
+                responseDiv.className = 'response ' + (response.ok ? 'success' : 'error');
+                responseDiv.style.display = 'block';
+
+                // If this was a login request and we got a token, save it
+                if (url === '/login' && response.ok && responseData.token) {
+                    authToken = responseData.token;
+                    document.getElementById('token').value = authToken;
+                    alert('Token saved! You can now test protected routes.');
+                }
+
+            } catch (error) {
+                responseDiv.innerHTML = 'Error: ' + error.message;
+                responseDiv.className = 'response error';
+                responseDiv.style.display = 'block';
+            }
+        }
+
+        function clearResponse() {
+            document.getElementById('response').style.display = 'none';
+        }
+
+        // Load register preset by default
+        loadPreset('register');
+    </script>
+</body>
+</html> 
