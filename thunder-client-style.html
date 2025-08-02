@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thunder Client - API Tester</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #252526;
+            border-right: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px;
+            border-bottom: 1px solid #3e3e42;
+            background: #2d2d30;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: #cccccc;
+        }
+
+        .quick-actions {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .quick-actions h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .quick-btn {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: left;
+            transition: background 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: #1177bb;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+        }
+
+        .toolbar {
+            padding: 15px 20px;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .method-select {
+            padding: 8px 12px;
+            background: #3c3c3c;
+            border: 1px solid #5a5a5a;
+            border-radius: 4px;
+            color: #d4d4d4;
+            font-size: 14px;
+            min-width: 100px;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 8px 12px;
+            background: #3c3c3c;
+            border: 1px solid #5a5a5a;
+            border-radius: 4px;
+            color: #d4d4d4;
+            font-size: 14px;
+        }
+
+        .send-btn {
+            padding: 8px 16px;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .send-btn:hover {
+            background: #1177bb;
+        }
+
+        .clear-btn {
+            padding: 8px 16px;
+            background: #5a5a5a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .clear-btn:hover {
+            background: #6a6a6a;
+        }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #3e3e42;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-size: 14px;
+        }
+
+        .tab.active {
+            color: #ffffff;
+            border-bottom-color: #0e639c;
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #cccccc;
+            font-size: 13px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: #3c3c3c;
+            border: 1px solid #5a5a5a;
+            border-radius: 4px;
+            color: #d4d4d4;
+            font-size: 13px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0e639c;
+        }
+
+        .response-area {
+            margin-top: 20px;
+            border-top: 1px solid #3e3e42;
+            padding-top: 20px;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .response-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .response-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #0d7377;
+            color: white;
+        }
+
+        .status-error {
+            background: #c92a2a;
+            color: white;
+        }
+
+        .response-content {
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0e639c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background: #4caf50;
+        }
+
+        .status-offline {
+            background: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="header">
+                <h1>⚡ Thunder Client</h1>
+                <p>API Testing Tool</p>
+                <div style="margin-top: 10px;">
+                    <span class="status-indicator status-online"></span>
+                    <span style="font-size: 12px; color: #4caf50;">Online</span>
+                </div>
+            </div>
+            
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <button class="quick-btn" onclick="loadPreset('register')">📝 Register User</button>
+                <button class="quick-btn" onclick="loadPreset('login')">🔐 Login User</button>
+                <button class="quick-btn" onclick="loadPreset('assign-teacher')">👨‍🏫 Assign Teacher Role</button>
+                <button class="quick-btn" onclick="loadPreset('user-profile')">👤 Get User Profile</button>
+                <button class="quick-btn" onclick="loadPreset('children-list')">👶 Get Children</button>
+                <button class="quick-btn" onclick="loadPreset('create-child')">➕ Create Child</button>
+                <button class="quick-btn" onclick="loadPreset('lessons')">📚 Get Lessons</button>
+                <button class="quick-btn" onclick="loadPreset('game-modes')">🎮 Get Game Modes</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <select id="method" class="method-select">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+                
+                <input type="text" id="endpoint" class="url-input" value="/register" placeholder="Enter endpoint (e.g., /login)">
+                
+                <button id="sendBtn" class="send-btn" onclick="testAPI()">
+                    <span id="sendText">Send</span>
+                </button>
+                
+                <button class="clear-btn" onclick="clearResponse()">Clear</button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('body')">Body</button>
+                    <button class="tab" onclick="switchTab('headers')">Headers</button>
+                    <button class="tab" onclick="switchTab('auth')">Auth</button>
+                </div>
+
+                <div class="tab-content">
+                    <!-- Body Tab -->
+                    <div id="body-tab" class="tab-pane active">
+                        <div class="form-group">
+                            <label>Request Body (JSON)</label>
+                            <textarea id="body" rows="12" placeholder='{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}'></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Headers Tab -->
+                    <div id="headers-tab" class="tab-pane">
+                        <div class="form-group">
+                            <label>Custom Headers (JSON)</label>
+                            <textarea id="headers" rows="12" placeholder='{
+  "Content-Type": "application/json",
+  "Accept": "application/json",
+  "Custom-Header": "value"
+}'></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Auth Tab -->
+                    <div id="auth-tab" class="tab-pane">
+                        <div class="form-group">
+                            <label>Bearer Token</label>
+                            <input type="text" id="token" placeholder="Enter your Bearer token here">
+                        </div>
+                        <div class="form-group">
+                            <label>Base URL</label>
+                            <input type="text" id="baseUrl" value="http://localhost:8000/api" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Response Area -->
+                <div id="response-area" class="response-area hidden">
+                    <div class="response-header">
+                        <span class="response-title">Response</span>
+                        <span id="response-status" class="response-status"></span>
+                    </div>
+                    <div id="response-content" class="response-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = '';
+
+        function switchTab(tabName) {
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab pane
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function loadPreset(type) {
+            const methodSelect = document.getElementById('method');
+            const endpointInput = document.getElementById('endpoint');
+            const bodyInput = document.getElementById('body');
+            const headersInput = document.getElementById('headers');
+            const tokenInput = document.getElementById('token');
+
+            // Switch to body tab
+            switchTab('body');
+
+            switch(type) {
+                case 'register':
+                    methodSelect.value = 'POST';
+                    endpointInput.value = '/register';
+                    bodyInput.value = JSON.stringify({
+                        name: 'Test User',
+                        email: 'test@example.com',
+                        password: 'password123',
+                        password_confirmation: 'password123'
+                    }, null, 2);
+                    headersInput.value = JSON.stringify({
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }, null, 2);
+                    break;
+
+                case 'login':
+                    methodSelect.value = 'POST';
+                    endpointInput.value = '/login';
+                    bodyInput.value = JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'password123'
+                    }, null, 2);
+                    headersInput.value = JSON.stringify({
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }, null, 2);
+                    break;
+
+                case 'assign-teacher':
+                    methodSelect.value = 'POST';
+                    endpointInput.value = '/assign-teacher-role';
+                    bodyInput.value = JSON.stringify({
+                        email: 'test@example.com'
+                    }, null, 2);
+                    headersInput.value = JSON.stringify({
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }, null, 2);
+                    break;
+
+                case 'user-profile':
+                    methodSelect.value = 'GET';
+                    endpointInput.value = '/user';
+                    bodyInput.value = '';
+                    headersInput.value = JSON.stringify({
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    break;
+
+                case 'children-list':
+                    methodSelect.value = 'GET';
+                    endpointInput.value = '/children';
+                    bodyInput.value = '';
+                    headersInput.value = JSON.stringify({
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    break;
+
+                case 'create-child':
+                    methodSelect.value = 'POST';
+                    endpointInput.value = '/children';
+                    bodyInput.value = JSON.stringify({
+                        name: 'Test Child',
+                        age: 8,
+                        grade_level: '3rd Grade'
+                    }, null, 2);
+                    headersInput.value = JSON.stringify({
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    break;
+
+                case 'lessons':
+                    methodSelect.value = 'GET';
+                    endpointInput.value = '/lessons/1';
+                    bodyInput.value = '';
+                    headersInput.value = JSON.stringify({
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    break;
+
+                case 'game-modes':
+                    methodSelect.value = 'GET';
+                    endpointInput.value = '/game-modes/1';
+                    bodyInput.value = '';
+                    headersInput.value = JSON.stringify({
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    break;
+            }
+        }
+
+        async function testAPI() {
+            const method = document.getElementById('method').value;
+            const endpoint = document.getElementById('endpoint').value;
+            const bodyText = document.getElementById('body').value;
+            const headersText = document.getElementById('headers').value;
+            const token = document.getElementById('token').value;
+            const baseUrl = document.getElementById('baseUrl').value;
+            
+            // Show loading state
+            const sendBtn = document.getElementById('sendBtn');
+            const sendText = document.getElementById('sendText');
+            sendBtn.disabled = true;
+            sendText.innerHTML = '<span class="loading"></span>Sending...';
+            
+            // Update auth token if provided
+            if (token) {
+                authToken = token;
+            }
+            
+            let headers = {};
+            try {
+                headers = JSON.parse(headersText || '{}');
+            } catch (e) {
+                showResponse('Error: Invalid JSON in headers', 'error');
+                return;
+            }
+            
+            // Add default headers if not provided
+            if (!headers['Content-Type'] && (method === 'POST' || method === 'PUT')) {
+                headers['Content-Type'] = 'application/json';
+            }
+            if (!headers['Accept']) {
+                headers['Accept'] = 'application/json';
+            }
+            
+            // Add token to headers if provided
+            if (token && !headers.Authorization) {
+                headers.Authorization = 'Bearer ' + token;
+            }
+            
+            const fullUrl = baseUrl + endpoint;
+            
+            try {
+                const options = {
+                    method: method,
+                    headers: headers
+                };
+                
+                if (bodyText && (method === 'POST' || method === 'PUT')) {
+                    options.body = bodyText;
+                }
+                
+                const response = await fetch(fullUrl, options);
+                const responseText = await response.text();
+                
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    responseData = responseText;
+                }
+                
+                const result = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    data: responseData
+                };
+                
+                showResponse(JSON.stringify(result, null, 2), response.ok ? 'success' : 'error');
+                
+                // If this was a login request and we got a token, save it
+                if (endpoint === '/login' && response.ok && responseData.token) {
+                    authToken = responseData.token;
+                    document.getElementById('token').value = authToken;
+                    showNotification('Token saved! You can now test protected routes.');
+                }
+                
+            } catch (error) {
+                showResponse('Error: ' + error.message, 'error');
+            } finally {
+                // Reset button state
+                sendBtn.disabled = false;
+                sendText.textContent = 'Send';
+            }
+        }
+        
+        function showResponse(content, type) {
+            const responseArea = document.getElementById('response-area');
+            const responseContent = document.getElementById('response-content');
+            const responseStatus = document.getElementById('response-status');
+            
+            responseContent.textContent = content;
+            responseStatus.textContent = type === 'success' ? 'Success' : 'Error';
+            responseStatus.className = 'response-status ' + (type === 'success' ? 'status-success' : 'status-error');
+            
+            responseArea.classList.remove('hidden');
+        }
+        
+        function clearResponse() {
+            document.getElementById('response-area').classList.add('hidden');
+        }
+        
+        function showNotification(message) {
+            // Create a simple notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #0e639c;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 4px;
+                z-index: 1000;
+                font-size: 14px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Load register preset by default
+        loadPreset('register');
+    </script>
+</body>
+</html> 

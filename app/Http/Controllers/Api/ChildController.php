@@ -28,12 +28,19 @@ class ChildController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'grade_level' => 'required|in:KG,Grade 1,Grade 2',
+            'grade_level' => 'required|in:KG,Grade 1,Grade 2,3rd Grade',
         ]);
+
+        // Find the grade ID based on the grade level name
+        $grade = \App\Models\Grade::where('name', $request->grade_level)->first();
+        
+        if (!$grade) {
+            return response()->json(['message' => 'Invalid grade level'], 422);
+        }
 
         $child = $request->user()->children()->create([
             'name' => $request->name,
-            'grade_level' => $request->grade_level,
+            'grade_id' => $grade->id,
         ]);
 
         return new ChildResource($child);
@@ -64,10 +71,23 @@ class ChildController extends Controller
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'grade_level' => 'sometimes|required|in:KG,Grade 1,Grade 2',
+            'grade_level' => 'sometimes|required|in:KG,Grade 1,Grade 2,3rd Grade',
         ]);
 
-        $child->update($request->only(['name', 'grade_level']));
+        $updateData = ['name' => $request->name];
+        
+        if ($request->has('grade_level')) {
+            // Find the grade ID based on the grade level name
+            $grade = \App\Models\Grade::where('name', $request->grade_level)->first();
+            
+            if (!$grade) {
+                return response()->json(['message' => 'Invalid grade level'], 422);
+            }
+            
+            $updateData['grade_id'] = $grade->id;
+        }
+
+        $child->update($updateData);
 
         return new ChildResource($child);
     }
