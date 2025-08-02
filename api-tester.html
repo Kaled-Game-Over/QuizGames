@@ -84,6 +84,8 @@
             <button onclick="loadPreset('user-profile')">Test Get User Profile</button>
             <button onclick="loadPreset('children-list')">Test Get Children</button>
             <button onclick="loadPreset('create-child')">Test Create Child</button>
+            <button onclick="loadPreset('get-game-mode')">Test Get Game Mode</button>
+            <button onclick="loadPreset('get-lesson-game-mode')">Test Get Lesson Game Mode</button>
         </div>
 
         <form id="apiForm">
@@ -207,6 +209,26 @@
                         age: 8,
                         grade_level: '3rd Grade'
                     }, null, 2);
+                    break;
+                case 'get-game-mode':
+                    methodSelect.value = 'GET';
+                    urlInput.value = '/game-modes/1';
+                    headersInput.value = JSON.stringify({
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    bodyInput.value = '';
+                    break;
+                case 'get-lesson-game-mode':
+                    methodSelect.value = 'GET';
+                    urlInput.value = '/lessons/1/game-mode';
+                    headersInput.value = JSON.stringify({
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    bodyInput.value = '';
                     break;
             }
         }

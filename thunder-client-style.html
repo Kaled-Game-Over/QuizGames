@@ -327,6 +327,7 @@
                 <button class="quick-btn" onclick="loadPreset('create-child')">➕ Create Child</button>
                 <button class="quick-btn" onclick="loadPreset('lessons')">📚 Get Lessons</button>
                 <button class="quick-btn" onclick="loadPreset('game-modes')">🎮 Get Game Modes</button>
+            <button class="quick-btn" onclick="loadPreset('lesson-game-mode')">🎯 Get Lesson Game Mode</button>
             </div>
         </div>
 
@@ -529,6 +530,16 @@
                 case 'game-modes':
                     methodSelect.value = 'GET';
                     endpointInput.value = '/game-modes/1';
+                    bodyInput.value = '';
+                    headersInput.value = JSON.stringify({
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
+                    }, null, 2);
+                    break;
+
+                case 'lesson-game-mode':
+                    methodSelect.value = 'GET';
+                    endpointInput.value = '/lessons/1/game-mode';
                     bodyInput.value = '';
                     headersInput.value = JSON.stringify({
                         'Accept': 'application/json',
