@@ -77,8 +77,6 @@
         .auth-btn:hover {
             background-color: #218838 !important;
         }
-            background-color: #218838 !important;
-        }
         .user-btn {
             background-color: #17a2b8 !important;
         }
@@ -243,7 +241,7 @@
             switch(type) {
                 case 'register':
                     methodSelect.value = 'POST';
-                    urlInput.value = '/api/register';
+                    urlInput.value = '/register';
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -258,7 +256,7 @@
 
                 case 'login':
                     methodSelect.value = 'POST';
-                    urlInput.value = '/api/login';
+                    urlInput.value = '/login';
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -271,7 +269,7 @@
 
                 case 'assign-teacher':
                     methodSelect.value = 'POST';
-                    urlInput.value = '/api/assign-teacher-role';
+                    urlInput.value = '/assign-teacher-role';
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -283,7 +281,7 @@
 
                 case 'user-profile':
                     methodSelect.value = 'GET';
-                    urlInput.value = '/api/user';
+                    urlInput.value = '/user';
                     headersInput.value = JSON.stringify({
                         'Accept': 'application/json',
                         'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
@@ -293,7 +291,7 @@
 
                 case 'children-list':
                     methodSelect.value = 'GET';
-                    urlInput.value = '/api/children';
+                    urlInput.value = '/children';
                     headersInput.value = JSON.stringify({
                         'Accept': 'application/json',
                         'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
@@ -303,7 +301,7 @@
 
                 case 'create-child':
                     methodSelect.value = 'POST';
-                    urlInput.value = '/api/children';
+                    urlInput.value = '/children';
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
@@ -317,7 +315,7 @@
                     break;
                 case 'get-game-mode':
                     methodSelect.value = 'GET';
-                    urlInput.value = '/api/game-modes/1';
+                    urlInput.value = '/game-modes/1';
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
@@ -327,7 +325,7 @@
                     break;
                 case 'get-lesson-game-mode':
                     methodSelect.value = 'GET';
-                    urlInput.value = '/api/lessons/1/game-mode';
+                    urlInput.value = '/lessons/1/game-mode';
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
