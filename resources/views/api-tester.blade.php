@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Dashboard Tester</title>
+    <title>Dashboard API Tester</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,6 +42,7 @@
             border-radius: 4px;
             cursor: pointer;
             margin-right: 10px;
+            margin-bottom: 10px;
         }
         button:hover {
             background-color: #0056b3;
@@ -63,114 +64,45 @@
             border: 1px solid #f5c6cb;
             color: #721c24;
         }
-        .preset-buttons {
-            margin-bottom: 20px;
+        .auth-btn { background-color: #28a745 !important; }
+        .auth-btn:hover { background-color: #218838 !important; }
+        .user-btn { background-color: #17a2b8 !important; }
+        .user-btn:hover { background-color: #138496 !important; }
+        .dashboard-btn { 
+            background-color: #ffc107 !important; 
+            color: #212529 !important; 
         }
-        .preset-buttons button {
-            margin-bottom: 10px;
-            width: auto;
-            margin-right: 10px;
-        }
-        .auth-btn {
-            background-color: #28a745 !important;
-        }
-        .auth-btn:hover {
-            background-color: #218838 !important;
-        }
-        .user-btn {
-            background-color: #17a2b8 !important;
-        }
-        .user-btn:hover {
-            background-color: #138496 !important;
-        }
-        .dashboard-btn {
-            background-color: #ffc107 !important;
-            color: #212529 !important;
-        }
-        .dashboard-btn:hover {
-            background-color: #e0a800 !important;
-        }
-        .curriculum-btn {
-            background-color: #6f42c1 !important;
-        }
-        .curriculum-btn:hover {
-            background-color: #5a32a3 !important;
-        }
-        .update-btn {
-            background-color: #fd7e14 !important;
-        }
-        .update-btn:hover {
-            background-color: #e8690b !important;
-        }
+        .dashboard-btn:hover { background-color: #e0a800 !important; }
+        .curriculum-btn { background-color: #6f42c1 !important; }
+        .curriculum-btn:hover { background-color: #5a32a3 !important; }
+        .update-btn { background-color: #fd7e14 !important; }
+        .update-btn:hover { background-color: #e8690b !important; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎯 Dashboard Tester - Quiz Games Web Frontend</h1>
+        <h1>🎯 Dashboard API Tester</h1>
         <p>Test your Laravel Dashboard routes here. Base URL: <strong>http://localhost:8000</strong></p>
         
         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #007bff;">
-            <h4>📋 How to Test Dashboard APIs:</h4>
+            <h4>📋 How to Test:</h4>
             <ol>
                 <li><strong>🔐 Authentication:</strong> First use "Test Login" to get a token</li>
                 <li><strong>📊 Analytics:</strong> Test dashboard stats and player data</li>
                 <li><strong>📚 Curriculum:</strong> Create grades, maps, stages, lessons, game modes, and questions</li>
                 <li><strong>✏️ Updates:</strong> Modify existing content using update APIs</li>
             </ol>
-            <p><strong>Note:</strong> All dashboard APIs require authentication. Make sure to login first!</p>
         </div>
 
-        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
-            <h4>🎯 Available Dashboard Routes:</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                    <h5>📊 Analytics Routes:</h5>
-                    <ul>
-                        <li><code>GET /dashboard/players</code> - Get all players with children</li>
-                        <li><code>GET /dashboard/children-by-grade</code> - Get children by grade level</li>
-                        <li><code>GET /dashboard/stats</code> - Get dashboard statistics</li>
-                        <li><code>GET /dashboard/grades-with-maps</code> - Get complete curriculum structure</li>
-                    </ul>
-                </div>
-                <div>
-                    <h5>📚 Creation Routes:</h5>
-                    <ul>
-                        <li><code>POST /dashboard/grades</code> - Create grade/curriculum</li>
-                        <li><code>POST /dashboard/maps</code> - Create map for grade</li>
-                        <li><code>POST /dashboard/stages</code> - Create stage in map</li>
-                        <li><code>POST /dashboard/lessons</code> - Create lesson in stage</li>
-                        <li><code>POST /dashboard/game-modes</code> - Create game mode</li>
-                        <li><code>POST /dashboard/questions</code> - Create question</li>
-                    </ul>
-                </div>
-            </div>
-            <div>
-                <h5>✏️ Update Routes:</h5>
-                <ul>
-                    <li><code>PUT /dashboard/lessons/{id}</code> - Update lesson</li>
-                    <li><code>PUT /dashboard/game-modes/{id}</code> - Update game mode</li>
-                    <li><code>PUT /dashboard/questions/{id}</code> - Update question</li>
-                </ul>
-            </div>
-        </div>
-        
         <div class="preset-buttons">
             <h3>🔐 Authentication APIs:</h3>
             <button onclick="loadPreset('register')" class="auth-btn">Test Register</button>
             <button onclick="loadPreset('login')" class="auth-btn">Test Login</button>
-            <button onclick="loadPreset('assign-teacher')" class="auth-btn">Test Assign Teacher Role</button>
-            <button onclick="loadPreset('user-profile')" class="auth-btn">Test Get User Profile</button>
-            
-            <h3>👥 User Management APIs:</h3>
-            <button onclick="loadPreset('children-list')" class="user-btn">Test Get Children</button>
-            <button onclick="loadPreset('create-child')" class="user-btn">Test Create Child</button>
-            <button onclick="loadPreset('get-game-mode')" class="user-btn">Test Get Game Mode</button>
-            <button onclick="loadPreset('get-lesson-game-mode')" class="user-btn">Test Get Lesson Game Mode</button>
             
             <h3>📊 Dashboard Analytics APIs:</h3>
+            <button onclick="loadPreset('dashboard-stats')" class="dashboard-btn">Get Dashboard Stats</button>
             <button onclick="loadPreset('dashboard-players')" class="dashboard-btn">Get All Players</button>
             <button onclick="loadPreset('dashboard-children-grade')" class="dashboard-btn">Get Children by Grade</button>
-            <button onclick="loadPreset('dashboard-stats')" class="dashboard-btn">Get Dashboard Stats</button>
             <button onclick="loadPreset('dashboard-grades-maps')" class="dashboard-btn">Get Grades with Maps</button>
             
             <h3>📚 Curriculum Management APIs:</h3>
@@ -213,11 +145,6 @@
                 <textarea id="body" rows="8" placeholder='{"name": "Test User", "email": "test@example.com", "password": "password123", "password_confirmation": "password123"}'></textarea>
             </div>
 
-            <div class="form-group">
-                <label for="token">Auth Token (for protected routes):</label>
-                <input type="text" id="token" placeholder="Enter your Bearer token here">
-            </div>
-
             <button type="button" onclick="sendRequest()">Send Request</button>
             <button type="button" onclick="clearResponse()">Clear Response</button>
         </form>
@@ -241,7 +168,7 @@
             switch(type) {
                 case 'register':
                     methodSelect.value = 'POST';
-                    urlInput.value = '/api/register';
+                    urlInput.value = '/register';
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -256,7 +183,7 @@
 
                 case 'login':
                     methodSelect.value = 'POST';
-                    urlInput.value = '/api/login';
+                    urlInput.value = '/login';
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -267,74 +194,15 @@
                     }, null, 2);
                     break;
 
-                case 'assign-teacher':
-                    methodSelect.value = 'POST';
-                    urlInput.value = '/api/assign-teacher-role';
+                case 'dashboard-stats':
+                    methodSelect.value = 'GET';
+                    urlInput.value = '/dashboard/stats';
                     headersInput.value = JSON.stringify({
-                        'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     }, null, 2);
-                    bodyInput.value = JSON.stringify({
-                        email: 'test@example.com'
-                    }, null, 2);
-                    break;
-
-                case 'user-profile':
-                    methodSelect.value = 'GET';
-                    urlInput.value = '/api/user';
-                    headersInput.value = JSON.stringify({
-                        'Accept': 'application/json',
-                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
-                    }, null, 2);
                     bodyInput.value = '';
                     break;
 
-                case 'children-list':
-                    methodSelect.value = 'GET';
-                    urlInput.value = '/api/children';
-                    headersInput.value = JSON.stringify({
-                        'Accept': 'application/json',
-                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
-                    }, null, 2);
-                    bodyInput.value = '';
-                    break;
-
-                case 'create-child':
-                    methodSelect.value = 'POST';
-                    urlInput.value = '/api/children';
-                    headersInput.value = JSON.stringify({
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
-                    }, null, 2);
-                    bodyInput.value = JSON.stringify({
-                        name: 'Test Child',
-                        age: 8,
-                        grade_level: '3rd Grade'
-                    }, null, 2);
-                    break;
-                case 'get-game-mode':
-                    methodSelect.value = 'GET';
-                    urlInput.value = '/api/game-modes/1';
-                    headersInput.value = JSON.stringify({
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
-                    }, null, 2);
-                    bodyInput.value = '';
-                    break;
-                case 'get-lesson-game-mode':
-                    methodSelect.value = 'GET';
-                    urlInput.value = '/api/lessons/1/game-mode';
-                    headersInput.value = JSON.stringify({
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': 'Bearer ' + (authToken || 'YOUR_TOKEN_HERE')
-                    }, null, 2);
-                    bodyInput.value = '';
-                    break;
-
-                // Dashboard Routes
                 case 'dashboard-players':
                     methodSelect.value = 'GET';
                     urlInput.value = '/dashboard/players';
@@ -347,15 +215,6 @@
                 case 'dashboard-children-grade':
                     methodSelect.value = 'GET';
                     urlInput.value = '/dashboard/children-by-grade?grade_level=1st Grade';
-                    headersInput.value = JSON.stringify({
-                        'Accept': 'application/json'
-                    }, null, 2);
-                    bodyInput.value = '';
-                    break;
-
-                case 'dashboard-stats':
-                    methodSelect.value = 'GET';
-                    urlInput.value = '/dashboard/stats';
                     headersInput.value = JSON.stringify({
                         'Accept': 'application/json'
                     }, null, 2);
@@ -377,7 +236,7 @@
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }, null, 2);
                     bodyInput.value = JSON.stringify({
                         name: 'First Grade',
@@ -392,7 +251,7 @@
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }, null, 2);
                     bodyInput.value = JSON.stringify({
                         grade_id: 1,
@@ -408,7 +267,7 @@
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }, null, 2);
                     bodyInput.value = JSON.stringify({
                         map_id: 1,
@@ -425,7 +284,7 @@
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }, null, 2);
                     bodyInput.value = JSON.stringify({
                         stage_id: 1,
@@ -442,7 +301,7 @@
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }, null, 2);
                     bodyInput.value = JSON.stringify({
                         stage_id: 1,
@@ -459,7 +318,7 @@
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }, null, 2);
                     bodyInput.value = JSON.stringify({
                         game_mode_id: 1,
@@ -472,14 +331,13 @@
                     }, null, 2);
                     break;
 
-                // Update Routes
                 case 'update-lesson':
                     methodSelect.value = 'PUT';
                     urlInput.value = '/dashboard/lessons/1';
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }, null, 2);
                     bodyInput.value = JSON.stringify({
                         name: 'Updated Basic Addition',
@@ -495,7 +353,7 @@
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }, null, 2);
                     bodyInput.value = JSON.stringify({
                         name: 'Updated Quiz Mode',
@@ -511,7 +369,7 @@
                     headersInput.value = JSON.stringify({
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }, null, 2);
                     bodyInput.value = JSON.stringify({
                         question_text: 'What is 3 + 4?',
@@ -530,12 +388,6 @@
             const url = document.getElementById('url').value;
             const headersText = document.getElementById('headers').value;
             const bodyText = document.getElementById('body').value;
-            const token = document.getElementById('token').value;
-
-            // Update auth token if provided
-            if (token) {
-                authToken = token;
-            }
 
             let headers = {};
             try {
@@ -545,12 +397,7 @@
                 return;
             }
 
-            // Add token to headers if provided
-            if (token && !headers.Authorization) {
-                headers.Authorization = 'Bearer ' + token;
-            }
-
-            const fullUrl = 'http://localhost:8000' + url;
+            const fullUrl = window.location.origin + url;
             const responseDiv = document.getElementById('response');
 
             try {
@@ -587,7 +434,6 @@
                 // If this was a login request and we got a token, save it
                 if (url === '/login' && response.ok && responseData.token) {
                     authToken = responseData.token;
-                    document.getElementById('token').value = authToken;
                     updateAuthStatus(true, 'Authenticated - Token saved!');
                     alert('Token saved! You can now test protected routes.');
                 }
@@ -620,13 +466,6 @@
                 statusDiv.style.color = '#721c24';
                 statusText.textContent = 'Not authenticated - Please login first';
             }
-        }
-
-        // Check if we have a saved token on page load
-        if (authToken) {
-            updateAuthStatus(true, 'Token available - Ready to test protected APIs');
-        } else {
-            updateAuthStatus(false, 'No token - Please login first');
         }
 
         // Load register preset by default

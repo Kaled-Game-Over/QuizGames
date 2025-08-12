@@ -43,4 +43,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Game modes routes
     Route::get('game-modes/{gameMode}', [GameModeController::class, 'show']);
     Route::get('lessons/{lessonId}/game-mode', [GameModeController::class, 'getByLesson']);
+
+
 });

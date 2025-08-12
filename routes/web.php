@@ -29,5 +29,28 @@ Route::controller(LoginRegisterController::class)->group(function() {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    // You can add more dashboard-related routes here later
+    
+    // Dashboard Analytics Routes
+    Route::get('/dashboard/players', [DashboardController::class, 'getAllPlayers'])->name('dashboard.players');
+    Route::get('/dashboard/children-by-grade', [DashboardController::class, 'getChildrenByGrade'])->name('dashboard.children.by.grade');
+    Route::get('/dashboard/stats', [DashboardController::class, 'getDashboardStats'])->name('dashboard.stats');
+    Route::get('/dashboard/grades-with-maps', [DashboardController::class, 'getGradesWithMaps'])->name('dashboard.grades.maps');
+    
+    // Dashboard Creation Routes
+    Route::post('/dashboard/grades', [DashboardController::class, 'createGrade'])->name('dashboard.grades.create');
+    Route::post('/dashboard/maps', [DashboardController::class, 'createMap'])->name('dashboard.maps.create');
+    Route::post('/dashboard/stages', [DashboardController::class, 'createStage'])->name('dashboard.stages.create');
+    Route::post('/dashboard/lessons', [DashboardController::class, 'createLesson'])->name('dashboard.lessons.create');
+    Route::post('/dashboard/game-modes', [DashboardController::class, 'createGameMode'])->name('dashboard.game.modes.create');
+    Route::post('/dashboard/questions', [DashboardController::class, 'createQuestion'])->name('dashboard.questions.create');
+    
+    // Dashboard Update Routes
+    Route::put('/dashboard/lessons/{id}', [DashboardController::class, 'updateLesson'])->name('dashboard.lessons.update');
+    Route::put('/dashboard/game-modes/{id}', [DashboardController::class, 'updateGameMode'])->name('dashboard.game.modes.update');
+    Route::put('/dashboard/questions/{id}', [DashboardController::class, 'updateQuestion'])->name('dashboard.questions.update');
 });
+
+// API Tester Route (no auth required)
+Route::get('/api-tester', function () {
+    return view('api-tester');
+})->name('api.tester');
