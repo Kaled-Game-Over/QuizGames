@@ -388,6 +388,106 @@ class DashboardController extends Controller
     }
 
     /**
+     * Get all grades
+     */
+    public function getGrades(): JsonResponse
+    {
+        try {
+            $grades = Grade::all();
+
+            return response()->json([
+                'success' => true,
+                'data' => $grades
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching grades: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all maps
+     */
+    public function getMaps(): JsonResponse
+    {
+        try {
+            $maps = Map::with('grade')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $maps
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching maps: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all stages
+     */
+    public function getStages(): JsonResponse
+    {
+        try {
+            $stages = Stage::with('map')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $stages
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching stages: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all lessons
+     */
+    public function getLessons(): JsonResponse
+    {
+        try {
+            $lessons = Lesson::with('stage')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $lessons
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching lessons: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all game modes
+     */
+    public function getGameModes(): JsonResponse
+    {
+        try {
+            $gameModes = GameMode::with('lesson')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $gameModes
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching game modes: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get all grades with their maps and stages
      */
     public function getGradesWithMaps(): JsonResponse

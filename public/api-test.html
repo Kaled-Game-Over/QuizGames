@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="">
+    <title>Complete Quiz Game API Tester</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1400px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }
+        .section { margin-bottom: 30px; border: 1px solid #ddd; border-radius: 8px; padding: 15px; background: white; }
+        .section h3 { margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; margin-bottom: 10px; }
+        button:hover { background-color: #0056b3; }
+        .response { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; margin-top: 15px; white-space: pre-wrap; font-family: monospace; max-height: 300px; overflow-y: auto; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .token-display { background-color: #e9ecef; padding: 10px; border-radius: 4px; margin-bottom: 15px; word-break: break-all; }
+        .dashboard-section { background-color: #e3f2fd; border-left: 4px solid #2196f3; }
+    </style>
+</head>
+<body>
+    <h1>Complete Quiz Game API Tester</h1>
+    
+    <!-- Authentication Section -->
+    <div class="section">
+        <h3>Authentication</h3>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="parent@test.com">
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="password">
+        </div>
+        <button onclick="login()">Login</button>
+        <button onclick="register()">Register</button>
+        <button onclick="logout()">Logout</button>
+        <button onclick="assignTeacherRole()">Assign Teacher Role</button>
+        <button onclick="getCsrfToken()">Get CSRF Token</button>
+        <div id="token-display" class="token-display" style="display: none;">
+            <strong>Token:</strong> <span id="token-text"></span>
+        </div>
+        <div id="auth-response" class="response"></div>
+    </div>
+
+    <!-- Dashboard APIs Section -->
+    <div class="section dashboard-section">
+        <h3>Dashboard APIs (Teacher Only)</h3>
+        
+        <!-- Grades Management -->
+        <div class="form-group">
+            <label for="gradeName">Grade Name:</label>
+            <input type="text" id="gradeName" value="4th Grade">
+        </div>
+        <div class="form-group">
+            <label for="gradeDescription">Grade Description:</label>
+            <input type="text" id="gradeDescription" value="Fourth grade level">
+        </div>
+        <div class="form-group">
+            <label for="gradeLevel">Grade Level:</label>
+            <input type="number" id="gradeLevel" value="4">
+        </div>
+        <button onclick="createGrade()">Create Grade</button>
+        <button onclick="getGrades()">Get All Grades</button>
+        
+        <!-- Maps Management -->
+        <div class="form-group">
+            <label for="mapGradeId">Grade ID for Map:</label>
+            <input type="number" id="mapGradeId" value="1">
+        </div>
+        <div class="form-group">
+            <label for="mapName">Map Name:</label>
+            <input type="text" id="mapName" value="Test Map">
+        </div>
+        <div class="form-group">
+            <label for="mapDescription">Map Description:</label>
+            <input type="text" id="mapDescription" value="Test map description">
+        </div>
+        <div class="form-group">
+            <label for="mapImagePath">Map Image Path:</label>
+            <input type="text" id="mapImagePath" value="maps/test-map.jpg">
+        </div>
+        <button onclick="createMap()">Create Map</button>
+        <button onclick="getMaps()">Get All Maps</button>
+        
+        <!-- Stages Management -->
+        <div class="form-group">
+            <label for="stageMapId">Map ID for Stage:</label>
+            <input type="number" id="stageMapId" value="1">
+        </div>
+        <div class="form-group">
+            <label for="stageName">Stage Name:</label>
+            <input type="text" id="stageName" value="Test Stage">
+        </div>
+        <div class="form-group">
+            <label for="stageOrder">Stage Order:</label>
+            <input type="number" id="stageOrder" value="1">
+        </div>
+        <button onclick="createStage()">Create Stage</button>
+        <button onclick="getStages()">Get All Stages</button>
+        
+        <!-- Lessons Management -->
+        <div class="form-group">
+            <label for="lessonStageId">Stage ID for Lesson:</label>
+            <input type="number" id="lessonStageId" value="1">
+        </div>
+        <div class="form-group">
+            <label for="lessonTitle">Lesson Title:</label>
+            <input type="text" id="lessonTitle" value="Test Lesson">
+        </div>
+        <div class="form-group">
+            <label for="lessonDescription">Lesson Description:</label>
+            <input type="text" id="lessonDescription" value="Test lesson description">
+        </div>
+        <button onclick="createLesson()">Create Lesson</button>
+        <button onclick="getLessons()">Get All Lessons</button>
+        
+        <!-- Game Modes Management -->
+        <div class="form-group">
+            <label for="gameModeLessonId">Lesson ID for Game Mode:</label>
+            <input type="number" id="gameModeLessonId" value="1">
+        </div>
+        <div class="form-group">
+            <label for="gameModeName">Game Mode Name:</label>
+            <input type="text" id="gameModeName" value="Test Game Mode">
+        </div>
+        <div class="form-group">
+            <label for="gameModeType">Game Mode Type:</label>
+            <select id="gameModeType">
+                <option value="quiz">Quiz</option>
+                <option value="photo">Photo Game</option>
+                <option value="math">Math Tetris</option>
+                <option value="matching">Matching</option>
+            </select>
+        </div>
+        <button onclick="createGameMode()">Create Game Mode</button>
+        <button onclick="getGameModes()">Get All Game Modes</button>
+        
+        <div id="dashboard-response" class="response"></div>
+    </div>
+
+    <!-- Child Management Section -->
+    <div class="section">
+        <h3>Child Management</h3>
+        <div class="form-group">
+            <label for="childName">Child Name:</label>
+            <input type="text" id="childName" value="Test Child">
+        </div>
+        <div class="form-group">
+            <label for="gradeLevel">Grade Level:</label>
+            <select id="gradeLevel">
+                <option value="Kindergarten">Kindergarten</option>
+                <option value="1st Grade">1st Grade</option>
+                <option value="2nd Grade">2nd Grade</option>
+                <option value="3rd Grade">3rd Grade</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="childId">Child ID (for operations):</label>
+            <input type="number" id="childId" value="1">
+        </div>
+        <button onclick="createChild()">Create Child</button>
+        <button onclick="getChildren()">Get Children</button>
+        <button onclick="getChildMap()">Get Child Map & Stages</button>
+        <button onclick="getCurrentStage()">Get Current Accessible Stage</button>
+        <button onclick="updateChild()">Update Child</button>
+        <button onclick="deleteChild()">Delete Child</button>
+        <div id="child-response" class="response"></div>
+    </div>
+
+    <!-- Quiz Questions Section -->
+    <div class="section">
+        <h3>Quiz Questions</h3>
+        <div class="form-group">
+            <label for="quizGameModeId">Game Mode ID:</label>
+            <input type="number" id="quizGameModeId" value="1">
+        </div>
+        <div class="form-group">
+            <label for="quizQuestion">Question:</label>
+            <input type="text" id="quizQuestion" value="What is 2 + 2?">
+        </div>
+        <div class="form-group">
+            <label for="quizOptions">Options (comma separated):</label>
+            <input type="text" id="quizOptions" value="3,4,5,6">
+        </div>
+        <div class="form-group">
+            <label for="quizCorrectAnswer">Correct Answer:</label>
+            <input type="text" id="quizCorrectAnswer" value="4">
+        </div>
+        <div class="form-group">
+            <label for="quizPoints">Points:</label>
+            <input type="number" id="quizPoints" value="10">
+        </div>
+        <div class="form-group">
+            <label for="quizDifficulty">Difficulty:</label>
+            <select id="quizDifficulty">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="quizQuestionId">Question ID (for update/delete):</label>
+            <input type="number" id="quizQuestionId" value="1">
+        </div>
+        <button onclick="createQuizQuestion()">Create Quiz Question</button>
+        <button onclick="getQuizQuestions()">Get Quiz Questions</button>
+        <button onclick="updateQuizQuestion()">Update Quiz Question</button>
+        <button onclick="deleteQuizQuestion()">Delete Quiz Question</button>
+        <div id="quiz-response" class="response"></div>
+    </div>
+
+    <!-- Photo Game Questions Section -->
+    <div class="section">
+        <h3>Photo Game Questions</h3>
+        <div class="form-group">
+            <label for="photoGameModeId">Game Mode ID:</label>
+            <input type="number" id="photoGameModeId" value="1">
+        </div>
+        <div class="form-group">
+            <label for="photoQuestion">Question:</label>
+            <input type="text" id="photoQuestion" value="Which animal is this?">
+        </div>
+        <div class="form-group">
+            <label for="photoImages">Images (comma separated URLs):</label>
+            <input type="text" id="photoImages" value="images/cat.jpg,images/dog.jpg,images/bird.jpg">
+        </div>
+        <div class="form-group">
+            <label for="photoCorrectAnswer">Correct Answer:</label>
+            <input type="text" id="photoCorrectAnswer" value="Cat">
+        </div>
+        <div class="form-group">
+            <label for="photoPoints">Points:</label>
+            <input type="number" id="photoPoints" value="15">
+        </div>
+        <div class="form-group">
+            <label for="photoDifficulty">Difficulty:</label>
+            <select id="photoDifficulty">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="photoQuestionId">Question ID (for update/delete):</label>
+            <input type="number" id="photoQuestionId" value="1">
+        </div>
+        <button onclick="createPhotoQuestion()">Create Photo Question</button>
+        <button onclick="getPhotoQuestions()">Get Photo Questions</button>
+        <button onclick="updatePhotoQuestion()">Update Photo Question</button>
+        <button onclick="deletePhotoQuestion()">Delete Photo Question</button>
+        <div id="photo-response" class="response"></div>
+    </div>
+
+    <!-- Math Tetris Questions Section -->
+    <div class="section">
+        <h3>Math Tetris Questions</h3>
+        <div class="form-group">
+            <label for="mathGameModeId">Game Mode ID:</label>
+            <input type="number" id="mathGameModeId" value="1">
+        </div>
+        <div class="form-group">
+            <label for="mathQuestion">Question:</label>
+            <input type="text" id="mathQuestion" value="5 + 3 = ?">
+        </div>
+        <div class="form-group">
+            <label for="mathCorrectAnswer">Correct Answer:</label>
+            <input type="text" id="mathCorrectAnswer" value="8">
+        </div>
+        <div class="form-group">
+            <label for="mathPoints">Points:</label>
+            <input type="number" id="mathPoints" value="20">
+        </div>
+        <div class="form-group">
+            <label for="mathOperationType">Operation Type:</label>
+            <select id="mathOperationType">
+                <option value="addition">Addition</option>
+                <option value="subtraction">Subtraction</option>
+                <option value="multiplication">Multiplication</option>
+                <option value="division">Division</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="mathDifficulty">Difficulty:</label>
+            <select id="mathDifficulty">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="mathQuestionId">Question ID (for update/delete):</label>
+            <input type="number" id="mathQuestionId" value="1">
+        </div>
+        <button onclick="createMathQuestion()">Create Math Question</button>
+        <button onclick="getMathQuestions()">Get Math Questions</button>
+        <button onclick="updateMathQuestion()">Update Math Question</button>
+        <button onclick="deleteMathQuestion()">Delete Math Question</button>
+        <div id="math-response" class="response"></div>
+    </div>
+
+    <!-- Stage Progress Section -->
+    <div class="section">
+        <h3>Stage Progress</h3>
+        <div class="form-group">
+            <label for="progressChildId">Child ID:</label>
+            <input type="number" id="progressChildId" value="1">
+        </div>
+        <div class="form-group">
+            <label for="stageId">Stage ID:</label>
+            <input type="number" id="stageId" value="1">
+        </div>
+        <div class="form-group">
+            <label for="totalScore">Total Score:</label>
+            <input type="number" id="totalScore" value="85">
+        </div>
+        <div class="form-group">
+            <label for="stars">Stars (0-3):</label>
+            <input type="number" id="stars" value="2" min="0" max="3">
+        </div>
+        <div class="form-group">
+            <label for="isCompleted">Is Completed:</label>
+            <select id="isCompleted">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+        <button onclick="createStageProgress()">Create Stage Progress</button>
+        <button onclick="getStageProgress()">Get Stage Progress</button>
+        <button onclick="getTotalScore()">Get Total Score</button>
+        <button onclick="getStageLeaderboard()">Get Stage Leaderboard</button>
+        <div id="progress-response" class="response"></div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('api_token');
+        const baseUrl = 'http://localhost:8000/api';
+
+        // Get CSRF token for dashboard APIs
+        async function getCsrfToken() {
+            try {
+                const response = await fetch(`${baseUrl.replace('/api', '')}/csrf-token`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.token);
+                showResponse('auth-response', { message: 'CSRF Token retrieved successfully', token: data.token });
+                return data.token;
+            } catch (error) {
+                console.error('Error getting CSRF token:', error);
+                showResponse('auth-response', { error: 'Failed to get CSRF token: ' + error.message }, true);
+                return '';
+            }
+        }
+
+        function updateTokenDisplay() {
+            const tokenDisplay = document.getElementById('token-display');
+            const tokenText = document.getElementById('token-text');
+            if (token) {
+                tokenDisplay.style.display = 'block';
+                tokenText.textContent = token;
+            } else {
+                tokenDisplay.style.display = 'none';
+            }
+        }
+
+        function showResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = 'response ' + (isError ? 'error' : 'success');
+        }
+
+        // Authentication functions
+        async function login() {
+            try {
+                const response = await fetch(`${baseUrl}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+
+                const data = await response.json();
+                if (data.token) {
+                    token = data.token;
+                    localStorage.setItem('api_token', token);
+                    updateTokenDisplay();
+                    showResponse('auth-response', data);
+                } else {
+                    showResponse('auth-response', data, true);
+                }
+            } catch (error) {
+                showResponse('auth-response', { error: error.message }, true);
+            }
+        }
+
+        async function register() {
+            try {
+                const response = await fetch(`${baseUrl}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: 'Test User',
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value,
+                        password_confirmation: document.getElementById('password').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('auth-response', data, !response.ok);
+            } catch (error) {
+                showResponse('auth-response', { error: error.message }, true);
+            }
+        }
+
+        async function logout() {
+            try {
+                const response = await fetch(`${baseUrl}/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                token = null;
+                localStorage.removeItem('api_token');
+                updateTokenDisplay();
+                showResponse('auth-response', data);
+            } catch (error) {
+                showResponse('auth-response', { error: error.message }, true);
+            }
+        }
+
+        async function assignTeacherRole() {
+            try {
+                const response = await fetch(`${baseUrl}/assign-teacher-role`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('auth-response', data, !response.ok);
+            } catch (error) {
+                showResponse('auth-response', { error: error.message }, true);
+            }
+        }
+
+        // Child management functions
+        async function createChild() {
+            try {
+                const response = await fetch(`${baseUrl}/children`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('childName').value,
+                        grade_level: document.getElementById('gradeLevel').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('child-response', data, !response.ok);
+            } catch (error) {
+                showResponse('child-response', { error: error.message }, true);
+            }
+        }
+
+        async function getChildren() {
+            try {
+                const response = await fetch(`${baseUrl}/children`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('child-response', data, !response.ok);
+            } catch (error) {
+                showResponse('child-response', { error: error.message }, true);
+            }
+        }
+
+        async function getChildMap() {
+            try {
+                const childId = document.getElementById('childId').value;
+                const response = await fetch(`${baseUrl}/children/${childId}/map`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('child-response', data, !response.ok);
+            } catch (error) {
+                showResponse('child-response', { error: error.message }, true);
+            }
+        }
+
+        async function getCurrentStage() {
+            try {
+                const childId = document.getElementById('childId').value;
+                const response = await fetch(`${baseUrl}/children/${childId}/current-stage`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('child-response', data, !response.ok);
+            } catch (error) {
+                showResponse('child-response', { error: error.message }, true);
+            }
+        }
+
+        async function updateChild() {
+            try {
+                const childId = document.getElementById('childId').value;
+                const response = await fetch(`${baseUrl}/children/${childId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('childName').value,
+                        grade_level: document.getElementById('gradeLevel').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('child-response', data, !response.ok);
+            } catch (error) {
+                showResponse('child-response', { error: error.message }, true);
+            }
+        }
+
+        async function deleteChild() {
+            try {
+                const childId = document.getElementById('childId').value;
+                const response = await fetch(`${baseUrl}/children/${childId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('child-response', data, !response.ok);
+            } catch (error) {
+                showResponse('child-response', { error: error.message }, true);
+            }
+        }
+
+        // Dashboard functions with Bearer token authentication
+        async function createGrade() {
+            try {
+                const response = await fetch(`${baseUrl}/dashboard/grades`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        name: document.getElementById('gradeName').value,
+                        description: document.getElementById('gradeDescription').value,
+                        level: parseInt(document.getElementById('gradeLevel').value)
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('dashboard-response', data, !response.ok);
+            } catch (error) {
+                showResponse('dashboard-response', { error: error.message }, true);
+            }
+        }
+
+        async function getGrades() {
+            try {
+                const response = await fetch(`${baseUrl}/dashboard/grades`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('dashboard-response', data, !response.ok);
+            } catch (error) {
+                showResponse('dashboard-response', { error: error.message }, true);
+            }
+        }
+
+        async function createMap() {
+            try {
+                const response = await fetch(`${baseUrl}/dashboard/maps`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        grade_id: parseInt(document.getElementById('mapGradeId').value),
+                        name: document.getElementById('mapName').value,
+                        description: document.getElementById('mapDescription').value,
+                        image_path: document.getElementById('mapImagePath').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('dashboard-response', data, !response.ok);
+            } catch (error) {
+                showResponse('dashboard-response', { error: error.message }, true);
+            }
+        }
+
+        async function getMaps() {
+            try {
+                const response = await fetch(`${baseUrl}/dashboard/maps`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('dashboard-response', data, !response.ok);
+            } catch (error) {
+                showResponse('dashboard-response', { error: error.message }, true);
+            }
+        }
+
+        async function createStage() {
+            try {
+                const response = await fetch(`${baseUrl}/dashboard/stages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        map_id: parseInt(document.getElementById('stageMapId').value),
+                        name: document.getElementById('stageName').value,
+                        order: parseInt(document.getElementById('stageOrder').value)
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('dashboard-response', data, !response.ok);
+            } catch (error) {
+                showResponse('dashboard-response', { error: error.message }, true);
+            }
+        }
+
+        async function getStages() {
+            try {
+                const response = await fetch(`${baseUrl}/dashboard/stages`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('dashboard-response', data, !response.ok);
+            } catch (error) {
+                showResponse('dashboard-response', { error: error.message }, true);
+            }
+        }
+
+        async function createLesson() {
+            try {
+                const response = await fetch(`${baseUrl}/dashboard/lessons`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        stage_id: parseInt(document.getElementById('lessonStageId').value),
+                        title: document.getElementById('lessonTitle').value,
+                        description: document.getElementById('lessonDescription').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('dashboard-response', data, !response.ok);
+            } catch (error) {
+                showResponse('dashboard-response', { error: error.message }, true);
+            }
+        }
+
+        async function getLessons() {
+            try {
+                const response = await fetch(`${baseUrl}/dashboard/lessons`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('dashboard-response', data, !response.ok);
+            } catch (error) {
+                showResponse('dashboard-response', { error: error.message }, true);
+            }
+        }
+
+        async function createGameMode() {
+            try {
+                const response = await fetch(`${baseUrl}/dashboard/game-modes`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        lesson_id: parseInt(document.getElementById('gameModeLessonId').value),
+                        name: document.getElementById('gameModeName').value,
+                        type: document.getElementById('gameModeType').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('dashboard-response', data, !response.ok);
+            } catch (error) {
+                showResponse('dashboard-response', { error: error.message }, true);
+            }
+        }
+
+        async function getGameModes() {
+            try {
+                const response = await fetch(`${baseUrl}/dashboard/game-modes`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('dashboard-response', data, !response.ok);
+            } catch (error) {
+                showResponse('dashboard-response', { error: error.message }, true);
+            }
+        }
+
+        // Quiz questions functions
+        async function createQuizQuestion() {
+            try {
+                const response = await fetch(`${baseUrl}/quiz-questions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        game_mode_id: parseInt(document.getElementById('quizGameModeId').value),
+                        question: document.getElementById('quizQuestion').value,
+                        options: document.getElementById('quizOptions').value.split(',').map(s => s.trim()),
+                        correct_answer: document.getElementById('quizCorrectAnswer').value,
+                        points: parseInt(document.getElementById('quizPoints').value),
+                        difficulty: document.getElementById('quizDifficulty').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('quiz-response', data, !response.ok);
+            } catch (error) {
+                showResponse('quiz-response', { error: error.message }, true);
+            }
+        }
+
+        async function getQuizQuestions() {
+            try {
+                const gameModeId = document.getElementById('quizGameModeId').value;
+                const response = await fetch(`${baseUrl}/quiz-questions?game_mode_id=${gameModeId}&limit=5`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('quiz-response', data, !response.ok);
+            } catch (error) {
+                showResponse('quiz-response', { error: error.message }, true);
+            }
+        }
+
+        async function updateQuizQuestion() {
+            try {
+                const questionId = document.getElementById('quizQuestionId').value;
+                const response = await fetch(`${baseUrl}/quiz-questions/${questionId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: document.getElementById('quizQuestion').value,
+                        options: document.getElementById('quizOptions').value.split(',').map(s => s.trim()),
+                        correct_answer: document.getElementById('quizCorrectAnswer').value,
+                        points: parseInt(document.getElementById('quizPoints').value),
+                        difficulty: document.getElementById('quizDifficulty').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('quiz-response', data, !response.ok);
+            } catch (error) {
+                showResponse('quiz-response', { error: error.message }, true);
+            }
+        }
+
+        async function deleteQuizQuestion() {
+            try {
+                const questionId = document.getElementById('quizQuestionId').value;
+                const response = await fetch(`${baseUrl}/quiz-questions/${questionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('quiz-response', data, !response.ok);
+            } catch (error) {
+                showResponse('quiz-response', { error: error.message }, true);
+            }
+        }
+
+        // Photo game questions functions
+        async function createPhotoQuestion() {
+            try {
+                const response = await fetch(`${baseUrl}/photo-game-questions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        game_mode_id: parseInt(document.getElementById('photoGameModeId').value),
+                        question: document.getElementById('photoQuestion').value,
+                        images: document.getElementById('photoImages').value.split(',').map(s => s.trim()),
+                        correct_answer: document.getElementById('photoCorrectAnswer').value,
+                        points: parseInt(document.getElementById('photoPoints').value),
+                        difficulty: document.getElementById('photoDifficulty').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('photo-response', data, !response.ok);
+            } catch (error) {
+                showResponse('photo-response', { error: error.message }, true);
+            }
+        }
+
+        async function getPhotoQuestions() {
+            try {
+                const gameModeId = document.getElementById('photoGameModeId').value;
+                const response = await fetch(`${baseUrl}/photo-game-questions?game_mode_id=${gameModeId}&limit=5`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('photo-response', data, !response.ok);
+            } catch (error) {
+                showResponse('photo-response', { error: error.message }, true);
+            }
+        }
+
+        async function updatePhotoQuestion() {
+            try {
+                const questionId = document.getElementById('photoQuestionId').value;
+                const response = await fetch(`${baseUrl}/photo-game-questions/${questionId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: document.getElementById('photoQuestion').value,
+                        images: document.getElementById('photoImages').value.split(',').map(s => s.trim()),
+                        correct_answer: document.getElementById('photoCorrectAnswer').value,
+                        points: parseInt(document.getElementById('photoPoints').value),
+                        difficulty: document.getElementById('photoDifficulty').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('photo-response', data, !response.ok);
+            } catch (error) {
+                showResponse('photo-response', { error: error.message }, true);
+            }
+        }
+
+        async function deletePhotoQuestion() {
+            try {
+                const questionId = document.getElementById('photoQuestionId').value;
+                const response = await fetch(`${baseUrl}/photo-game-questions/${questionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('photo-response', data, !response.ok);
+            } catch (error) {
+                showResponse('photo-response', { error: error.message }, true);
+            }
+        }
+
+        // Math tetris questions functions
+        async function createMathQuestion() {
+            try {
+                const response = await fetch(`${baseUrl}/math-tetris-questions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        game_mode_id: parseInt(document.getElementById('mathGameModeId').value),
+                        question: document.getElementById('mathQuestion').value,
+                        correct_answer: document.getElementById('mathCorrectAnswer').value,
+                        points: parseInt(document.getElementById('mathPoints').value),
+                        operation_type: document.getElementById('mathOperationType').value,
+                        difficulty: document.getElementById('mathDifficulty').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('math-response', data, !response.ok);
+            } catch (error) {
+                showResponse('math-response', { error: error.message }, true);
+            }
+        }
+
+        async function getMathQuestions() {
+            try {
+                const gameModeId = document.getElementById('mathGameModeId').value;
+                const response = await fetch(`${baseUrl}/math-tetris-questions?game_mode_id=${gameModeId}&limit=5`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('math-response', data, !response.ok);
+            } catch (error) {
+                showResponse('math-response', { error: error.message }, true);
+            }
+        }
+
+        async function updateMathQuestion() {
+            try {
+                const questionId = document.getElementById('mathQuestionId').value;
+                const response = await fetch(`${baseUrl}/math-tetris-questions/${questionId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: document.getElementById('mathQuestion').value,
+                        correct_answer: document.getElementById('mathCorrectAnswer').value,
+                        points: parseInt(document.getElementById('mathPoints').value),
+                        operation_type: document.getElementById('mathOperationType').value,
+                        difficulty: document.getElementById('mathDifficulty').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('math-response', data, !response.ok);
+            } catch (error) {
+                showResponse('math-response', { error: error.message }, true);
+            }
+        }
+
+        async function deleteMathQuestion() {
+            try {
+                const questionId = document.getElementById('mathQuestionId').value;
+                const response = await fetch(`${baseUrl}/math-tetris-questions/${questionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('math-response', data, !response.ok);
+            } catch (error) {
+                showResponse('math-response', { error: error.message }, true);
+            }
+        }
+
+        // Stage progress functions
+        async function createStageProgress() {
+            try {
+                const childId = document.getElementById('progressChildId').value;
+                const response = await fetch(`${baseUrl}/children/${childId}/progress`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        stage_id: parseInt(document.getElementById('stageId').value),
+                        total_score: parseInt(document.getElementById('totalScore').value),
+                        stars: parseInt(document.getElementById('stars').value),
+                        is_completed: document.getElementById('isCompleted').value === 'true'
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('progress-response', data, !response.ok);
+            } catch (error) {
+                showResponse('progress-response', { error: error.message }, true);
+            }
+        }
+
+        async function getStageProgress() {
+            try {
+                const childId = document.getElementById('progressChildId').value;
+                const response = await fetch(`${baseUrl}/children/${childId}/progress`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('progress-response', data, !response.ok);
+            } catch (error) {
+                showResponse('progress-response', { error: error.message }, true);
+            }
+        }
+
+        async function getTotalScore() {
+            try {
+                const childId = document.getElementById('progressChildId').value;
+                const response = await fetch(`${baseUrl}/children/${childId}/total-score`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('progress-response', data, !response.ok);
+            } catch (error) {
+                showResponse('progress-response', { error: error.message }, true);
+            }
+        }
+
+        async function getStageLeaderboard() {
+            try {
+                const stageId = document.getElementById('stageId').value;
+                const response = await fetch(`${baseUrl}/stages/${stageId}/leaderboard`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('progress-response', data, !response.ok);
+            } catch (error) {
+                showResponse('progress-response', { error: error.message }, true);
+            }
+        }
+
+        // Initialize token display
+        updateTokenDisplay();
+    </script>
+</body>
+</html> 

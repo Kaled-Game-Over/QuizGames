@@ -5,9 +5,11 @@ namespace Database\Seeders;
 use App\Models\Child;
 use App\Models\GameMode;
 use App\Models\GameModeContent;
+use App\Models\Grade;
 use App\Models\Lesson;
 use App\Models\LessonContent;
 use App\Models\Map;
+use App\Models\Stage;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -26,36 +28,64 @@ class QuizGameSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
+        // Assign parent role to the user
+        $user->assignRole('parent');
+
         // Create children
-        Child::create(['user_id' => $user->id, 'name' => 'Ahmed KG', 'grade_level' => 'KG']);
-        Child::create(['user_id' => $user->id, 'name' => 'Sara Grade 1', 'grade_level' => 'Grade 1']);
-        Child::create(['user_id' => $user->id, 'name' => 'Omar Grade 2', 'grade_level' => 'Grade 2']);
+        // Create grades first
+        $kindergarten = Grade::create(['name' => 'Kindergarten']);
+        $grade1 = Grade::create(['name' => '1st Grade']);
+        $grade2 = Grade::create(['name' => '2nd Grade']);
+        $grade3 = Grade::create(['name' => '3rd Grade']);
+
+        Child::create(['user_id' => $user->id, 'name' => 'Ahmed KG', 'grade_id' => $kindergarten->id]);
+        Child::create(['user_id' => $user->id, 'name' => 'Sara Grade 1', 'grade_id' => $grade1->id]);
+        Child::create(['user_id' => $user->id, 'name' => 'Omar Grade 2', 'grade_id' => $grade2->id]);
 
         // Create maps
         $kgMap = Map::create([
-            'name' => 'KG Adventure World',
+            'name' => 'Kindergarten Adventure World',
             'description' => 'A colorful world for kindergarten students',
-            'grade_level' => 'KG',
+            'grade_id' => $kindergarten->id,
             'image_path' => 'maps/kg-world.jpg',
         ]);
 
         $grade1Map = Map::create([
-            'name' => 'Grade 1 Learning Kingdom',
-            'description' => 'An exciting kingdom for Grade 1 students',
-            'grade_level' => 'Grade 1',
+            'name' => '1st Grade Learning Kingdom',
+            'description' => 'An exciting kingdom for 1st Grade students',
+            'grade_id' => $grade1->id,
             'image_path' => 'maps/grade1-kingdom.jpg',
         ]);
 
         $grade2Map = Map::create([
-            'name' => 'Grade 2 Science Universe',
-            'description' => 'A vast universe for Grade 2 students',
-            'grade_level' => 'Grade 2',
+            'name' => '2nd Grade Science Universe',
+            'description' => 'A vast universe for 2nd Grade students',
+            'grade_id' => $grade2->id,
             'image_path' => 'maps/grade2-universe.jpg',
+        ]);
+
+        // Create stages first
+        $kgStage = \App\Models\Stage::create([
+            'map_id' => $kgMap->id,
+            'name' => 'Kindergarten Stage 1',
+            'order' => 1,
+        ]);
+
+        $grade1Stage = \App\Models\Stage::create([
+            'map_id' => $grade1Map->id,
+            'name' => '1st Grade Stage 1',
+            'order' => 1,
+        ]);
+
+        $grade2Stage = \App\Models\Stage::create([
+            'map_id' => $grade2Map->id,
+            'name' => '2nd Grade Stage 1',
+            'order' => 1,
         ]);
 
         // Create lessons for KG
         $kgLesson = Lesson::create([
-            'map_id' => $kgMap->id,
+            'stage_id' => $kgStage->id,
             'title' => 'Colors and Shapes',
             'description' => 'Learn about basic colors and shapes',
             'order' => 1,
@@ -85,7 +115,7 @@ class QuizGameSeeder extends Seeder
 
         // Create lessons for Grade 1
         $grade1Lesson = Lesson::create([
-            'map_id' => $grade1Map->id,
+            'stage_id' => $grade1Stage->id,
             'title' => 'Addition Basics',
             'description' => 'Learn basic addition with numbers 1-20',
             'order' => 1,
@@ -115,7 +145,7 @@ class QuizGameSeeder extends Seeder
 
         // Create lessons for Grade 2
         $grade2Lesson = Lesson::create([
-            'map_id' => $grade2Map->id,
+            'stage_id' => $grade2Stage->id,
             'title' => 'Multiplication Tables',
             'description' => 'Learn multiplication tables 2-5',
             'order' => 1,

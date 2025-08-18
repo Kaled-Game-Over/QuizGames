@@ -28,7 +28,7 @@ class ChildController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'grade_level' => 'required|in:KG,Grade 1,Grade 2,3rd Grade',
+            'grade_level' => 'required|in:Kindergarten,1st Grade,2nd Grade,3rd Grade',
         ]);
 
         // Find the grade ID based on the grade level name
@@ -71,7 +71,7 @@ class ChildController extends Controller
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'grade_level' => 'sometimes|required|in:KG,Grade 1,Grade 2,3rd Grade',
+            'grade_level' => 'sometimes|required|in:Kindergarten,1st Grade,2nd Grade,3rd Grade',
         ]);
 
         $updateData = ['name' => $request->name];
@@ -110,22 +110,126 @@ class ChildController extends Controller
     /**
      * Get the map for a specific child.
      */
-    public function getMap(Request $request, Child $child)
+   public function getMap(Request $request, Child $child)
+{
+    // Ensure the child belongs to the authenticated user
+    if ($child->user_id !== $request->user()->id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    // Load the map for the child's grade
+    $map = Map::where('grade_id', $child->grade_id)
+              ->with(['stages' => function($query) {
+                  $query->orderBy('order', 'asc');
+              }, 'grade']) // load grade relation
+              ->first();
+
+    if (!$map) {
+        return response()->json(['message' => 'No map found for this grade'], 404);
+    }
+
+    // Get child's completed stages
+    $completedStageIds = \App\Models\StageProgress::where('child_id', $child->id)
+        ->pluck('stage_id')
+        ->toArray();
+
+    // Add completion info to each stage
+    $map->stages->each(function($stage) use ($completedStageIds) {
+        $stage->is_completed = in_array($stage->id, $completedStageIds);
+    });
+
+    // Load child's grade relation
+    $child->load('grade');
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'map' => [
+                'id' => $map->id,
+                'name' => $map->name,
+                'description' => $map->description,
+                'grade' => $map->grade?->name,
+                'image_path' => $map->image_path,
+            ],
+            'stages' => $map->stages->map(function($stage) {
+                return [
+                    'id' => $stage->id,
+                    'name' => $stage->name,
+                    'order' => $stage->order,
+                    'is_completed' => $stage->is_completed ?? false,
+                ];
+            }),
+        ]
+    ]);
+}
+
+    /**
+     * Get the current accessible stage for a child.
+     * Returns the stage stored in current_stage_id.
+     */
+    public function getCurrentStage(Request $request, Child $child)
     {
         // Ensure the child belongs to the authenticated user
         if ($child->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $map = Map::where('grade_level', $child->grade_level)
-                  ->where('is_active', true)
-                  ->with('activeLessons')
+        $map = Map::where('grade_id', $child->grade_id)
+                  ->with(['stages' => function($query) {
+                      $query->orderBy('order', 'asc');
+                  }])
                   ->first();
 
         if (!$map) {
             return response()->json(['message' => 'No map found for this grade level'], 404);
         }
 
-        return new MapResource($map);
+        // Get child's completed stages
+        $completedStages = \App\Models\StageProgress::where('child_id', $child->id)
+            ->where('is_completed', true)
+            ->pluck('stage_id')
+            ->toArray();
+
+        $completedCount = count($completedStages);
+        $totalStages = $map->stages->count();
+
+        // If child has no current stage, set it to the first stage
+        if (!$child->current_stage_id && $totalStages > 0) {
+            $firstStage = $map->stages->first();
+            $child->update(['current_stage_id' => $firstStage->id]);
+            $child->refresh();
+        }
+
+        // Get current stage details
+        $currentStage = $child->currentStage;
+        $allCompleted = $completedCount === $totalStages;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'current_stage' => $currentStage ? [
+                    'id' => $currentStage->id,
+                    'name' => $currentStage->name,
+                    'order' => $currentStage->order,
+                    'is_completed' => in_array($currentStage->id, $completedStages),
+                    'is_accessible' => true,
+                ] : null,
+                'next_stage' => null, // No longer needed since current_stage is the accessible one
+                'all_completed' => $allCompleted,
+                'total_stages' => $totalStages,
+                'completed_stages' => $completedCount,
+                'map' => [
+                    'id' => $map->id,
+                    'name' => $map->name,
+                    'grade' => $map->grade->name,
+                ],
+                'child' => [
+                    'id' => $child->id,
+                    'name' => $child->name,
+                    'grade_level' => $child->grade->name,
+                    'current_stage_id' => $child->current_stage_id,
+                ]
+            ]
+        ]);
     }
 } 

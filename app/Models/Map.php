@@ -13,7 +13,7 @@ class Map extends Model
     protected $fillable = [
         'name',
         'description',
-        'grade_level',
+        'grade_id',      // <-- make sure you have this column
         'image_path',
         'is_active',
     ];
@@ -22,19 +22,26 @@ class Map extends Model
         'is_active' => 'boolean',
     ];
 
-    /**
-     * Get the lessons for this map.
-     */
+    // Map belongs to a grade
+    public function grade()
+    {
+        return $this->belongsTo(\App\Models\Grade::class);
+    }
+
+    // Map has many stages
+    public function stages(): HasMany
+    {
+        return $this->hasMany(Stage::class)->orderBy('order', 'asc');
+    }
+
+    // Map has many lessons
     public function lessons(): HasMany
     {
         return $this->hasMany(Lesson::class)->orderBy('order');
     }
 
-    /**
-     * Get active lessons for this map.
-     */
     public function activeLessons(): HasMany
     {
         return $this->lessons()->where('is_active', true);
     }
-} 
+}

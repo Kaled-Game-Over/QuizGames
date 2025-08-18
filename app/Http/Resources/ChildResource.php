@@ -21,6 +21,7 @@ class ChildResource extends JsonResource
             'grade_id' => $this->grade_id,
             'grade' => $this->grade ? $this->grade->name : null,
             'user_id' => $this->user_id,
+            'current_stage_id' => $this->current_stage_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -14,6 +14,7 @@ class Child extends Model
         'user_id',
         'name',
         'grade_id',
+        'current_stage_id',
     ];
 
     /**
@@ -30,6 +31,14 @@ class Child extends Model
     public function grade(): BelongsTo
     {
         return $this->belongsTo(Grade::class);
+    }
+
+    /**
+     * Get the current stage for this child.
+     */
+    public function currentStage(): BelongsTo
+    {
+        return $this->belongsTo(Stage::class, 'current_stage_id');
     }
 
     /**

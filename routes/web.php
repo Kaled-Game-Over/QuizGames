@@ -50,6 +50,11 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/dashboard/questions/{id}', [DashboardController::class, 'updateQuestion'])->name('dashboard.questions.update');
 });
 
+// CSRF Token Route
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+})->name('csrf.token');
+
 // API Tester Route (no auth required)
 Route::get('/api-tester', function () {
     return view('api-tester');
