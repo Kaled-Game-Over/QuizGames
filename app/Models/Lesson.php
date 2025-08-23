@@ -34,6 +34,11 @@ class Lesson extends Model
         return $this->belongsTo(Map::class);
     }
 
+    public function stage(): BelongsTo
+    {
+        return $this->belongsTo(Stage::class);
+    }
+
     /**
      * Get the lesson contents for this lesson.
      */
@@ -49,7 +54,7 @@ class Lesson extends Model
     {
         return $this->hasOne(GameMode::class);
     }
-
+    
     /**
      * Get the subject that owns the lesson.
      */

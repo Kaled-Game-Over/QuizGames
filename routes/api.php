@@ -45,7 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('maps/{mapId}/lessons', [LessonController::class, 'getByMap']);
     Route::post('lessons', [LessonController::class, 'store']);
     Route::post('lessons/{lesson}/contents', [LessonController::class, 'addContent']);
-
+    
     // Game modes routes
     Route::get('game-modes/{gameMode}', [GameModeController::class, 'show']);
     Route::get('lessons/{lessonId}/game-mode', [GameModeController::class, 'getByLesson']);
@@ -68,7 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('children/{child}/progress', [StageProgressController::class, 'store']);
     Route::get('children/{child}/total-score', [StageProgressController::class, 'getTotalScore']);
     Route::get('stages/{stage}/leaderboard', [StageProgressController::class, 'getStageLeaderboard']);
-
+    Route::get('stages/{stageId}/stage-content', [StageProgressController::class, 'getLessonsAndGameModes']);
     // Dashboard API routes (for external access)
     Route::prefix('dashboard')->group(function () {
         Route::post('grades', [DashboardController::class, 'createGrade']);

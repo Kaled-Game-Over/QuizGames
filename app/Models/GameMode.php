@@ -12,7 +12,6 @@ class GameMode extends Model
     use HasFactory;
 
     protected $fillable = [
-        'lesson_id',
         'name',
         'description',
         'type',
@@ -28,11 +27,12 @@ class GameMode extends Model
     /**
      * Get the lesson that owns the game mode.
      */
-    public function lesson(): BelongsTo
+    
+    public function instances()
     {
-        return $this->belongsTo(Lesson::class);
+        return $this->hasMany(GameModeInstance::class);
     }
-
+    
     /**
      * Get the game mode contents.
      */

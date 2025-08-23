@@ -42,12 +42,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/dashboard/stages', [DashboardController::class, 'createStage'])->name('dashboard.stages.create');
     Route::post('/dashboard/lessons', [DashboardController::class, 'createLesson'])->name('dashboard.lessons.create');
     Route::post('/dashboard/game-modes', [DashboardController::class, 'createGameMode'])->name('dashboard.game.modes.create');
-    Route::post('/dashboard/questions', [DashboardController::class, 'createQuestion'])->name('dashboard.questions.create');
+    Route::post('/dashboard/game-mode-instances', [DashboardController::class, 'createGameModeInstance'])->name('dashboard.game.mode.instances.create');
+    Route::post('/dashboard/quiz-game', [DashboardController::class, 'createQuestion'])->name('dashboard.questions.create');
+    Route::post('/dashboard/photo-game', [DashboardController::class, 'createPhotoEntry'])->name('dashboard.photo.game.create');
+    Route::post('/dashboard/math-game', [DashboardController::class, 'createMathProblem'])->name('dashboard.math.game.create');
     
     // Dashboard Update Routes
     Route::put('/dashboard/lessons/{id}', [DashboardController::class, 'updateLesson'])->name('dashboard.lessons.update');
     Route::put('/dashboard/game-modes/{id}', [DashboardController::class, 'updateGameMode'])->name('dashboard.game.modes.update');
-    Route::put('/dashboard/questions/{id}', [DashboardController::class, 'updateQuestion'])->name('dashboard.questions.update');
+    Route::put('/dashboard/quiz-game/{id}', [DashboardController::class, 'updateQuestion'])->name('dashboard.questions.update');
 });
 
 // CSRF Token Route

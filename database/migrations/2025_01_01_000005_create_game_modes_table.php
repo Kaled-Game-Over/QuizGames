@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('game_modes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lesson_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->text('description');
-            $table->enum('type', ['quiz', 'matching', 'puzzle', 'drag_drop', 'memory']);
+            $table->enum('type', ['PHOTO', 'QUIZ', 'MATH']);
             $table->json('game_config')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

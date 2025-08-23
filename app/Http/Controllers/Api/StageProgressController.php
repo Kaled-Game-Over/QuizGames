@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class StageProgressController extends Controller
-{
+{   
     /**
      * Get all stage progress for a child
      */
@@ -214,4 +214,35 @@ class StageProgressController extends Controller
             ],
         ]);
     }
+
+    public function getLessonsAndGameModes($stageId)
+    {
+        $stage = Stage::with([
+            'lessons', // all lessons in the stage
+            'gameModeInstances.gameMode', // all game mode instances with type
+            'gameModeInstances.photoGameEntries',
+            'gameModeInstances.quizGameQuestions',
+            'gameModeInstances.mathGameProblems'
+        ])->findOrFail($stageId);
+
+        $response = [
+            'stage' => $stage->name,
+            'lessons' => $stage->lessons,
+            'game_modes' => $stage->gameModeInstances->map(function ($instance) {
+                return [
+                    'id' => $instance->id,
+                    'type' => $instance->gameMode->type,
+                    'name' => $instance->gameMode->name,
+                    'description' => $instance->gameMode->description,
+                    'config' => $instance->config,
+                    'photo_entries' => $instance->photoGameEntries,
+                    'quiz_questions' => $instance->quizGameQuestions,
+                    'math_problems' => $instance->mathGameProblems,
+                ];
+            }),
+        ];
+
+        return response()->json($response);
+    }
+
 }

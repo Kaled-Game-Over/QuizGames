@@ -25,11 +25,15 @@ class Stage extends Model
         return $this->belongsTo(Map::class);
     }
 
-    /**
-     * Get the lessons for this stage.
-     */
-    public function lessons(): HasMany
+   public function lessons(): HasMany
     {
-        return $this->hasMany(Lesson::class);
+        return $this->hasMany(Lesson::class)->orderBy('order');
     }
+
+    public function gameModeInstances(): HasMany
+    {
+        return $this->hasMany(GameModeInstance::class)->orderBy('id');
+}
+
+    
 } 

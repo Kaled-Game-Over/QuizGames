@@ -99,10 +99,9 @@ class QuizGameSeeder extends Seeder
         ]);
 
         $kgGameMode = GameMode::create([
-            'lesson_id' => $kgLesson->id,
-            'name' => 'Color Matching Game',
+            'name' => 'Count the Photos Game',
             'description' => 'Match the colors with the correct objects',
-            'type' => 'matching',
+            'type' => 'PHOTO',
             'game_config' => ['time_limit' => 60, 'points_per_match' => 10],
         ]);
 
@@ -129,10 +128,9 @@ class QuizGameSeeder extends Seeder
         ]);
 
         $grade1GameMode = GameMode::create([
-            'lesson_id' => $grade1Lesson->id,
-            'name' => 'Addition Quiz',
+            'name' => 'Tetris game',
             'description' => 'Solve addition problems',
-            'type' => 'quiz',
+            'type' => 'MATH',
             'game_config' => ['time_limit' => 30, 'points_per_correct' => 20],
         ]);
 
@@ -159,10 +157,9 @@ class QuizGameSeeder extends Seeder
         ]);
 
         $grade2GameMode = GameMode::create([
-            'lesson_id' => $grade2Lesson->id,
-            'name' => 'Multiplication Quiz',
+            'name' => 'Quiz test',
             'description' => 'Practice multiplication tables',
-            'type' => 'quiz',
+            'type' => 'QUIZ',
             'game_config' => ['time_limit' => 40, 'points_per_correct' => 30],
         ]);
 

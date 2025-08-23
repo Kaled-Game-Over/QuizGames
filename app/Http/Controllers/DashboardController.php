@@ -11,7 +11,10 @@ use App\Models\Map;
 use App\Models\Stage;
 use App\Models\Lesson;
 use App\Models\GameMode;
-use App\Models\Question;
+use App\Models\QuizGameQuestion;
+use App\Models\GameModeInstance;
+use App\Models\PhotoGameEntry;
+use App\Models\MathGameProblem;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -253,6 +256,28 @@ class DashboardController extends Controller
         }
     }
 
+    public function createGameModeInstance(Request $request): JsonResponse
+    {
+        $request->validate([
+            'game_mode_id' => 'required|exists:game_modes,id',
+            'stage_id' => 'required|exists:stages,id',
+            'config' => 'nullable|array', // optional config as array
+        ]);
+
+        $instance = GameModeInstance::create([
+            'game_mode_id' => $request->game_mode_id,
+            'stage_id' => $request->stage_id,
+            'config' => $request->config ? json_encode($request->config) : null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Game mode instance created successfully',
+            'data' => $instance
+        ], 201);
+    }
+
+
     /**
      * Create a new question for a game mode
      */
@@ -260,30 +285,25 @@ class DashboardController extends Controller
     {
         try {
             $request->validate([
-                'game_mode_id' => 'required|exists:game_modes,id',
-                'question_text' => 'required|string',
-                'question_type' => 'required|string|max:255',
-                'options' => 'nullable|json',
-                'correct_answer' => 'required|string',
-                'points' => 'required|integer|min:1',
-                'difficulty' => 'required|string|in:easy,medium,hard'
+                'game_mode_instance_id' => 'required|exists:game_mode_instances,id',
+                'question' => 'required|string',
+                'choices' => 'nullable|array', // we can accept an array and cast to json
+                'correct_option' => 'required|integer|min:0',
             ]);
 
-            $question = Question::create([
-                'game_mode_id' => $request->game_mode_id,
-                'question_text' => $request->question_text,
-                'question_type' => $request->question_type,
-                'options' => $request->options,
-                'correct_answer' => $request->correct_answer,
-                'points' => $request->points,
-                'difficulty' => $request->difficulty
+            $question = \App\Models\QuizGameQuestion::create([
+                'game_mode_instance_id' => $request->game_mode_instance_id,
+                'question' => $request->question,
+                'choices' => $request->choices ? json_encode($request->choices) : null,
+                'correct_option' => $request->correct_option,
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Question created successfully',
+                'message' => 'Quiz question created successfully',
                 'data' => $question
             ], 201);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -358,27 +378,27 @@ class DashboardController extends Controller
     public function updateQuestion(Request $request, $id): JsonResponse
     {
         try {
-            $question = Question::findOrFail($id);
-            
+            $question = \App\Models\QuizGameQuestion::findOrFail($id);
+
             $request->validate([
-                'question_text' => 'sometimes|required|string',
-                'question_type' => 'sometimes|required|string|max:255',
-                'options' => 'nullable|json',
-                'correct_answer' => 'sometimes|required|string',
-                'points' => 'sometimes|required|integer|min:1',
-                'difficulty' => 'sometimes|required|string|in:easy,medium,hard'
+                'question' => 'sometimes|required|string',
+                'choices' => 'nullable|array', // accept array
+                'correct_option' => 'sometimes|required|integer|min:0',
             ]);
 
-            $question->update($request->only([
-                'question_text', 'question_type', 'options', 
-                'correct_answer', 'points', 'difficulty'
-            ]));
+            $data = $request->only(['question', 'correct_option']);
+            if ($request->has('choices')) {
+                $data['choices'] = json_encode($request->choices);
+            }
+
+            $question->update($data);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Question updated successfully',
+                'message' => 'Quiz question updated successfully',
                 'data' => $question
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -387,6 +407,111 @@ class DashboardController extends Controller
         }
     }
 
+    public function createPhotoEntry(Request $request): JsonResponse
+    {
+        $request->validate([
+            'game_mode_instance_id' => 'required|exists:game_mode_instances,id',
+            'correct_images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'wrong_images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'answer' => 'required|integer',
+        ]);
+
+        $data = [
+            'game_mode_instance_id' => $request->game_mode_instance_id,
+            'answer' => $request->answer,
+        ];
+
+        // Upload correct images
+        if ($request->hasFile('correct_images')) {
+            $correctImages = [];
+            foreach ($request->file('correct_images') as $file) {
+                $path = $file->store('photos/correct', 'public'); // stores in storage/app/public/photos/correct
+                $correctImages[] = $path;
+            }
+            $data['correct_images'] = $correctImages;
+        }
+
+        // Upload wrong images
+        if ($request->hasFile('wrong_images')) {
+            $wrongImages = [];
+            foreach ($request->file('wrong_images') as $file) {
+                $path = $file->store('photos/wrong', 'public');
+                $wrongImages[] = $path;
+            }
+            $data['wrong_images'] = $wrongImages;
+        }
+
+        $entry = PhotoGameEntry::create($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Photo game entry created successfully',
+            'data' => $entry
+        ], 201);
+    }
+
+
+    public function updatePhotoEntry(Request $request, $id): JsonResponse
+    {
+        $entry = PhotoGameEntry::findOrFail($id);
+
+        $request->validate([
+            'correct_images' => 'sometimes|array',
+            'wrong_images' => 'sometimes|array',
+            'answer' => 'sometimes|integer',
+        ]);
+
+        $data = $request->only(['answer']);
+        if ($request->has('correct_images')) $data['correct_images'] = json_encode($request->correct_images);
+        if ($request->has('wrong_images')) $data['wrong_images'] = json_encode($request->wrong_images);
+
+        $entry->update($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Photo game entry updated successfully',
+            'data' => $entry
+        ]);
+    }
+
+    public function createMathProblem(Request $request): JsonResponse
+    {
+        $request->validate([
+            'game_mode_instance_id' => 'required|exists:game_mode_instances,id',
+            'question' => 'required|string',
+            'answer' => 'required|string',
+        ]);
+
+        $problem = MathGameProblem::create([
+            'game_mode_instance_id' => $request->game_mode_instance_id,
+            'question' => $request->question,
+            'answer' => $request->answer,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Math problem created successfully',
+            'data' => $problem
+        ], 201);
+    }
+
+    public function updateMathProblem(Request $request, $id): JsonResponse
+    {
+        $problem = MathGameProblem::findOrFail($id);
+
+        $request->validate([
+            'question' => 'sometimes|required|string',
+            'answer' => 'sometimes|required|string',
+        ]);
+
+        $problem->update($request->only(['question', 'answer']));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Math problem updated successfully',
+            'data' => $problem
+        ]);
+    }
     /**
      * Get all grades
      */

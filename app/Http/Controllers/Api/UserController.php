@@ -17,6 +17,8 @@ class UserController extends Controller
 
         $user = User::where('email', $request->email)->first();
         $user->assignRole('teacher');
+        $user->role = 'teacher';  // update the column
+        $user->save();
 
         return response()->json([
             'message' => 'Teacher role assigned successfully!',
