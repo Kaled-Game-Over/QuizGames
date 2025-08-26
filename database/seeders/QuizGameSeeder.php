@@ -31,6 +31,15 @@ class QuizGameSeeder extends Seeder
         // Assign parent role to the user
         $user->assignRole('parent');
 
+            $teacher = User::create([
+            'name' => 'Admin',
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('adminpassword'),
+            ]);
+
+    // Assign teacher role to the user
+    $teacher->assignRole('teacher');
+
         // Create children
         // Create grades first
         $kindergarten = Grade::create(['name' => 'Kindergarten']);
