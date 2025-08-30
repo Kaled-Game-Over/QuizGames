@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('photo_game_entries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('game_mode_instance_id')->constrained()->onDelete('cascade');
+            $table->string('question'); // <-- new field
             $table->json('correct_images');
             $table->json('wrong_images');
             $table->integer('answer');
@@ -22,4 +23,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('photo_game_entries');
     }
-}; 
+};

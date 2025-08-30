@@ -25,26 +25,39 @@ class ChildController extends Controller
      * Add a new child.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'grade_level' => 'required|in:Kindergarten,1st Grade,2nd Grade,3rd Grade',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'grade_level' => 'required|in:Kindergarten,1st Grade,2nd Grade,3rd Grade',
+    ]);
 
-        // Find the grade ID based on the grade level name
-        $grade = \App\Models\Grade::where('name', $request->grade_level)->first();
-        
-        if (!$grade) {
-            return response()->json(['message' => 'Invalid grade level'], 422);
-        }
-
-        $child = $request->user()->children()->create([
-            'name' => $request->name,
-            'grade_id' => $grade->id,
-        ]);
-
-        return new ChildResource($child);
+    // Find the grade ID based on the grade level name
+    $grade = \App\Models\Grade::where('name', $request->grade_level)->first();
+    
+    if (!$grade) {
+        return response()->json(['message' => 'Invalid grade level'], 422);
     }
+
+    // Create child with default current_stage_id = 1
+    $child = $request->user()->children()->create([
+        'name' => $request->name,
+        'grade_id' => $grade->id,
+        'current_stage_id' => 1,
+    ]);
+
+    // Create 3 progress rows for stages 1, 2, 3
+    for ($i = 1; $i <= 3; $i++) {
+        \App\Models\ChildProgress::create([
+            'child_id' => $child->id,
+            'stage_id' => $i,
+            'stars' => 0,
+            'points' => 0,
+        ]);
+    }
+
+    return new ChildResource($child);
+}
+
 
     /**
      * Get a specific child.
@@ -232,4 +245,68 @@ class ChildController extends Controller
             ]
         ]);
     }
-} 
+
+     /**
+ * Update stars for a specific stage of a child.
+ */
+    /**
+ * Update stars for a specific stage of a child.
+ */
+    public function updateProgress(Request $request, Child $child)
+    {
+        // Ensure the child belongs to the authenticated user
+        if ($child->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'stage_id' => 'required|integer|exists:stages,id',
+            'stars' => 'required|integer|min:0|max:3',
+        ]);
+
+        $stageId = $request->stage_id;
+
+        // Find or create progress row for this stage
+        $progress = \App\Models\ChildProgress::firstOrCreate(
+            ['child_id' => $child->id, 'stage_id' => $stageId],
+            ['stars' => 0, 'points' => 0]
+        );
+
+        // Update stars (keep the best score)
+        $progress->stars = max($progress->stars, $request->stars);
+        $progress->save();
+
+        // If stars > 0 → update child's current_stage_id to the next stage IF it exists
+        if ($progress->stars > 0) {
+            $map = \App\Models\Map::where('grade_id', $child->grade_id)
+                ->with(['stages' => function ($q) {
+                    $q->orderBy('order', 'asc');
+                }])
+                ->first();
+
+            if ($map) {
+                $stages = $map->stages->values();
+                $currentIndex = $stages->search(fn($s) => $s->id === $stageId);
+
+                // If there's a next stage → update current_stage_id
+                if ($currentIndex !== false && $currentIndex + 1 < $stages->count()) {
+                    $nextStage = $stages[$currentIndex + 1];
+                    $child->current_stage_id = $nextStage->id;
+                    $child->save();
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Progress updated successfully',
+            'data' => [
+                'child_id' => $child->id,
+                'updated_stage_id' => $stageId,
+                'current_stage_id' => $child->current_stage_id,
+                'stage_progress' => $progress,
+            ]
+        ]);
+
+    } 
+}

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('child_progress', function (Blueprint $table) {
             $table->id();
             $table->foreignId('child_id')->constrained('children')->onDelete('cascade');
-            $table->foreignId('lesson_id')->constrained('lessons')->onDelete('cascade');
+            $table->foreignId('stage_id')->constrained('stages')->onDelete('cascade');
             $table->unsignedTinyInteger('stars')->default(0);
             $table->unsignedInteger('points')->default(0);
             $table->timestamp('last_accessed')->nullable();

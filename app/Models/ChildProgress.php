@@ -11,7 +11,7 @@ class ChildProgress extends Model
 
     protected $fillable = [
         'child_id',
-        'lesson_id',
+        'stage_id', 
         'stars',
         'points',
         'last_accessed',
@@ -22,8 +22,8 @@ class ChildProgress extends Model
         return $this->belongsTo(Child::class);
     }
 
-    public function lesson(): BelongsTo
+    public function stage(): BelongsTo
     {
-        return $this->belongsTo(Lesson::class);
+        return $this->belongsTo(Stage::class);
     }
 }

@@ -9,6 +9,7 @@ class PhotoGameEntry extends Model
 {
     protected $fillable = [
         'game_mode_instance_id',
+        'question',         
         'correct_images',
         'wrong_images',
         'answer',

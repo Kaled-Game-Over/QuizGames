@@ -407,48 +407,51 @@ class DashboardController extends Controller
         }
     }
 
-    public function createPhotoEntry(Request $request): JsonResponse
-    {
-        $request->validate([
-            'game_mode_instance_id' => 'required|exists:game_mode_instances,id',
-            'correct_images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'wrong_images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'answer' => 'required|integer',
-        ]);
+        public function createPhotoEntry(Request $request): JsonResponse
+        {
+            $request->validate([
+                'game_mode_instance_id' => 'required|exists:game_mode_instances,id',
+                'question' => 'required|string|max:255', // <-- new validation
+                'correct_images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+                'wrong_images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+                'answer' => 'required|integer',
+            ]);
 
-        $data = [
-            'game_mode_instance_id' => $request->game_mode_instance_id,
-            'answer' => $request->answer,
-        ];
+            $data = [
+                'game_mode_instance_id' => $request->game_mode_instance_id,
+                'question' => $request->question, // <-- assign question
+                'answer' => $request->answer,
+            ];
 
-        // Upload correct images
-        if ($request->hasFile('correct_images')) {
-            $correctImages = [];
-            foreach ($request->file('correct_images') as $file) {
-                $path = $file->store('photos/correct', 'public'); // stores in storage/app/public/photos/correct
-                $correctImages[] = $path;
+            // Upload correct images
+            if ($request->hasFile('correct_images')) {
+                $correctImages = [];
+                foreach ($request->file('correct_images') as $file) {
+                    $path = $file->store('photos/correct', 'public');
+                    $correctImages[] = $path;
+                }
+                $data['correct_images'] = $correctImages;
             }
-            $data['correct_images'] = $correctImages;
+
+            // Upload wrong images
+            if ($request->hasFile('wrong_images')) {
+                $wrongImages = [];
+                foreach ($request->file('wrong_images') as $file) {
+                    $path = $file->store('photos/wrong', 'public');
+                    $wrongImages[] = $path;
+                }
+                $data['wrong_images'] = $wrongImages;
+            }
+
+            $entry = PhotoGameEntry::create($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Photo game entry created successfully',
+                'data' => $entry
+            ], 201);
         }
 
-        // Upload wrong images
-        if ($request->hasFile('wrong_images')) {
-            $wrongImages = [];
-            foreach ($request->file('wrong_images') as $file) {
-                $path = $file->store('photos/wrong', 'public');
-                $wrongImages[] = $path;
-            }
-            $data['wrong_images'] = $wrongImages;
-        }
-
-        $entry = PhotoGameEntry::create($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Photo game entry created successfully',
-            'data' => $entry
-        ], 201);
-    }
 
 
     public function updatePhotoEntry(Request $request, $id): JsonResponse
